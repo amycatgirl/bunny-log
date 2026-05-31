@@ -73,7 +73,6 @@ async function setupOAuth() {
         ROOT.setAttribute("data-state", "authorized");
     } catch (error) {
         displayError("oauth", error)
-        return;
     }
 }
 
@@ -87,7 +86,7 @@ async function performLogin(identifier, form) {
         if (!await beforeLogin(identifier)) return;
 
         await oauthClient.signIn(identifier, {
-            state: "bunny",
+            state: window.crypto.randomUUID(),
             signal: new AbortController().signal
         })
     } catch (err) {

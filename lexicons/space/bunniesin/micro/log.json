@@ -1,0 +1,24 @@
+{
+  "lexicon": 1,
+  "id": "space.bunniesin.micro.log",
+  "defs": {
+    "main": {
+      "key": "tid",
+      "type": "record",
+      "description": "Simple microblogging lexicon",
+      "record": {
+        "type": "object",
+        "required": ["content", "createdAt"],
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

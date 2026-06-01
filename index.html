@@ -50,8 +50,13 @@
         <section class="without-session page" id="login">
             <h2>log in</h2>
             <form id="login-form">
-                <input class="with-typeahead" type="text" name="handle" placeholder="bunniesin.space">
-                <button type="submit">log in</button>
+                <label for="handle-input">handle</label>
+                <input  class="with-typeahead"
+                        type="text" id="handle-input" name="handle"
+                        placeholder="bunniesin.space"
+                        autocomplete="off">
+                <div class="typeahead-results" data-for="handle-input"></div>
+                <button type="submit">log in with oauth</button>
             </form>
         </section>
         <section class="with-session page" id="log-new">

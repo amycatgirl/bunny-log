@@ -7,7 +7,8 @@
 
     /* Colours */
     --c-bg: light-dark(#fcf7f3, #262622);
-    --c-bg-elevation-slight: color-mix(in oklch, var(--c-bg) 100%, contrast-color(var(--c-bg)) 15%);
+    --c-bg--elevation-slight: color-mix(in oklch, var(--c-bg) 100%, contrast-color(var(--c-bg)) 15%);
+    --c-bg--elevation-medium: color-mix(in oklch, var(--c-bg) 100%, contrast-color(var(--c-bg)) 20%);
 
     --c-fg: light-dark(#262622, #fcf7f3);
     --c-outline: light-dark(#23231f, #ece0d7);
@@ -171,7 +172,9 @@ footer { margin-top: 1rem; }
 form {
     display: flex;
     flex-direction: column;
-    gap: .5rem;
+    & *:not(:last-child, input.with-typeahead) {
+        margin-bottom: 1rem;
+    }
 
     & textarea {
         border-radius: var(--r-slight);
@@ -185,6 +188,27 @@ form {
 
         &:focus, &:focus-visible {
             outline: 2px solid var(--c-emphasis);
+        }
+    }
+
+    & > label {
+        font-style: italic;
+    }
+
+    & input:not([type="submit"]) {
+        background-color: var(--c-bg--elevation-medium);
+        border: none;
+
+        padding-inline: .6rem;
+        padding-block: .9rem;
+
+        font-family: var(--f-sans), sans-serif;
+
+        &.with-typeahead {
+            outline: 1px solid var(--c-outline);
+        }
+        &.with-typeahead + .typeahead-results {
+            outline: 1px solid var(--c-outline);
         }
     }
 }
@@ -235,16 +259,27 @@ nav li:has(a.router-link) {
 
 :is(nav li:has(a.router-link), button) {
     &:is(button) {
-        background-color: var(--c-bg-elevation-slight);
+        background-color: var(--c-bg--elevation-slight);
         border: 1px solid var(--c-outline);
     }
 
     font-family: var(--f-mono), monospace;
+    border-radius: 0px; /* webkit moment */
 
     padding-block: .2rem;
     padding-inline: .4rem;
     text-align: center;
 }
+
+.typeahead-results.show { display: block; }
+.result { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.7rem;
+    cursor: default; font-size: 0.85rem; }
+.result:hover { background: #1a1a1a; }
+.result img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.result .placeholder { width: 28px; height: 28px; border-radius: 50%; background: #222; flex-shrink: 0; }
+.result .info { min-width: 0; }
+.result .name { color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.result .handle { color: #555; font-size: 0.75rem; }
 
 /* hide elements that are interactively shown */
 .hidden { display: none; }

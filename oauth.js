@@ -3,7 +3,7 @@ import { Agent } from '@atproto/api'
 import { displayError, constructApiUrl, ALLOWED_DIDS } from "#app"
 import { navigate } from "#app/router"
 
-const OAUTH_SCOPES = "atproto repo:space.bunniesin.micro.log?action=create";
+const OAUTH_SCOPES = "atproto repo:app.bsky.feed.post?action:create repo:space.bunniesin.micro.log?action=create";
 const ROOT = document.querySelector("main[data-currentpage]");
 
 function clientID() {

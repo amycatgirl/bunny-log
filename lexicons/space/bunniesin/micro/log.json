@@ -11,11 +11,18 @@
         "required": ["content", "createdAt"],
         "properties": {
           "content": {
-            "type": "string"
+            "type": "string",
+            "description": "The primary log content"
           },
           "createdAt": {
             "type": "string",
-            "format": "datetime"
+            "format": "datetime",
+            "description": "Client-declared timestamp when this log was created"
+          },
+          "blueskyPost": {
+            "type": "ref",
+            "ref": "com.atproto.repo.strongRef",
+            "description": "Reference to the cross-posted version of the log, unavailable if content exceeds the lexicon's maximum length"
           }
         }
       }

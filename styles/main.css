@@ -11,7 +11,7 @@
 }
 
 body {
-    margin-block: 0;
+    margin: 0;
     overflow-x: hidden;
     overflow-y: scroll;
     min-height: 100vh;
@@ -116,13 +116,43 @@ div#atproto-leaflet {
     & .title {
         margin-top: 5px;
     }
+
+    & p {
+        text-wrap: balance;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    & a {
+        max-width: 20ch;
+        white-space: nowrap;
+    }
+
+    & img {
+        max-width: 100%;
+    }
+}
+
+.show-hover { opacity: .2; transition: opacity .2s; }
+.log:hover .show-hover {
+    opacity: 1;
+}
+
+footer:hover .show-hover {
+    opacity: 1;
+}
+
+.log {
+    display: flex;
+    flex-direction: column;
+    & button { margin-top: 1rem; &:last-child { margin-bottom: 1rem; }}
 }
 
 time {
     font-family: var(--f-mono), monospace;
 }
 
-footer { opacity: .3; margin-top: 1rem; }
+footer { margin-top: 1rem; }
 
 .unimportant {
     opacity: .3;
@@ -196,3 +226,7 @@ nav li:has(a.router-link) {
 
 /* hide elements that are interactively shown */
 .hidden { display: none; }
+
+.h-center {
+    justify-content: center;
+}

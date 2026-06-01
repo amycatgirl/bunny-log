@@ -145,9 +145,11 @@ form {
 }
 
 .dangerous {
-    &:is(a.router-link, div, button) {
+    &:is(a.router-link, div, button, li) {
         background-color: var(--c-danger);
         color: var(--c-bg);
+
+        & * { color: var(--c-bg); }
 
         font-weight: 600;
     }
@@ -165,13 +167,15 @@ nav:has(li > a.router-link) ul {
     justify-content: space-between;
     align-items: center;
 
+    gap: 2rem;
+
     & li::marker {
         content: "";
     }
 }
 
 
-nav li > a.router-link {
+nav li:has(a.router-link) {
     display: inline-block;
     width: 100%;
 
@@ -180,7 +184,7 @@ nav li > a.router-link {
     padding-inline: .4rem;
 
     background-color: color-mix(in oklab, var(--c-emphasis) 100%, transparent 50%);
-    color: var(--c-fg);
+    & * { color: var(--c-fg); }
 }
 
 /* hide elements that are interactively shown */

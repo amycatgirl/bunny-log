@@ -6,7 +6,9 @@
     --c-fg: light-dark(#262622, #fcf7f3);
     --c-outline: light-dark(#23231f, #ece0d7);
     --c-emphasis: light-dark(#7c0b65, #f65fd6);
+    --c-emphasis-fg: #fcf7f3;
     --c-danger: #3cbfe7;
+    --c-danger-fg: #262622;
     --r-slight: 10px;
 }
 
@@ -180,17 +182,20 @@ form {
 }
 
 .dangerous {
-    &:is(a.router-link, div, button, li) {
-        background-color: var(--c-danger);
-        color: var(--c-bg);
+    --emphasis: var(--c-danger);
+    --emphasis-fg: var(--c-danger-fg);
 
-        & * { color: var(--c-bg); }
+    &:is(a.router-link, div, button, li) {
+        background-color: var(--emphasis);
+        color: var(--emphasis-fg);
+
+        & * { color: var(--emphasis-fg); }
 
         font-weight: 600;
     }
 
     &:not(a.router-link, div, button) {
-        color: var(--c-danger);
+        color: var(--emphasis);
     }
 }
 
@@ -221,7 +226,7 @@ nav li:has(a.router-link) {
     padding-inline: .4rem;
 
     background-color: color-mix(in oklab, var(--c-emphasis) 100%, transparent 50%);
-    & * { color: var(--c-fg); }
+    & * { color: var(--c-emphasis-fg); }
 }
 
 /* hide elements that are interactively shown */

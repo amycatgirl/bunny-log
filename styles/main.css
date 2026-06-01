@@ -1,14 +1,22 @@
 :root {
     color-scheme: light dark;
+
+    /* Fonts */
     --f-mono: "Iosevka";
     --f-sans: "Iosevka Aile";
+
+    /* Colours */
     --c-bg: light-dark(#fcf7f3, #262622);
+    --c-bg-elevation-slight: color-mix(in oklch, var(--c-bg) 100%, contrast-color(var(--c-bg)) 15%);
+
     --c-fg: light-dark(#262622, #fcf7f3);
     --c-outline: light-dark(#23231f, #ece0d7);
     --c-emphasis: light-dark(#7c0b65, #f65fd6);
     --c-emphasis-fg: #fcf7f3;
     --c-danger: #3cbfe7;
     --c-danger-fg: #262622;
+
+    /* Border radii*/
     --r-slight: 10px;
 }
 
@@ -221,12 +229,21 @@ nav li:has(a.router-link) {
     display: inline-block;
     width: 100%;
 
-    text-align: center;
-    padding-block: .2rem;
-    padding-inline: .4rem;
-
     background-color: color-mix(in oklab, var(--c-emphasis) 100%, transparent 50%);
     & * { color: var(--c-emphasis-fg); }
+}
+
+:is(nav li:has(a.router-link), button) {
+    &:is(button) {
+        background-color: var(--c-bg-elevation-slight);
+        border: 1px solid var(--c-outline);
+    }
+
+    font-family: var(--f-mono), monospace;
+
+    padding-block: .2rem;
+    padding-inline: .4rem;
+    text-align: center;
 }
 
 /* hide elements that are interactively shown */

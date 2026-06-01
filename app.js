@@ -1,4 +1,4 @@
-import { defineNavigationHook, navigate } from "#app/router"
+import {defineNavigationHook, navigate} from "#app/router"
 
 // https://npmx.dev/package-code/@atcute/tid/v/1.1.2/lib%2Findex.ts
 const TID_RE = /^[234567abcdefghij][234567abcdefghijklmnopqrstuvwxyz]{12}$/;
@@ -6,6 +6,7 @@ const validateTID = (tid) => {
     return tid.length === 13 && TID_RE.test(tid);
 };
 
+const TYPEAHEAD_PROVIDER = "https://typeahead.waow.tech";
 const DEFAULT_PREVIEW_HANDLE = "bunniesin.space";
 const DEFAULT_PREVIEW_DID = "did:plc:gijpvbkdbr56kazbdjhfvb3d";
 const DEFAULT_PREVIEW_DID_PDS = "https://eurosky.social"
@@ -27,15 +28,22 @@ const INSTANCE_OPERATOR_CONTACTS = [
 ];
 let preview_cursor;
 
+/* placeholder replacement map */
 const PLACEHOLDER_MAP = {
-    "unauth-op-contact-list": INSTANCE_OPERATOR_CONTACTS.map(({type, value}) => `<li>${type}: ${value}</li>`).join("\n"),
+    "unauth-op-contact-list": INSTANCE_OPERATOR_CONTACTS.map(({
+                                                                  type,
+                                                                  value
+                                                              }) => `<li>${type}: ${value}</li>`).join("\n"),
     "unauth-op-contacts-msg": INSTANCE_OPERATOR_HANDLE,
     "preview-latest-handle": DEFAULT_PREVIEW_HANDLE,
     "log-perma-date": (date) => DATE_FORMATTER.format(date),
 }
 
+/* elements!! */
 const ROOT = document.getElementById('root');
 const POST_LIST = document.getElementById('postlist-wrapper');
+const TYPEAHEAD_ELEMENTS = document.querySelectorAll('input[type="text"].with-typeahead');
+
 const DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
     timeStyle: "long",
     dateStyle: "short"
@@ -123,7 +131,7 @@ async function fetchPostsFromPreviewDID(previous_cursor) {
     const {cursor, records} = await parseResponseBody(res)
     preview_cursor = cursor;
 
-    return records.map(record => ({ ...record.value, rkey: extractRkeyFromPlainAtURI(record.uri)}));
+    return records.map(record => ({...record.value, rkey: extractRkeyFromPlainAtURI(record.uri)}));
 }
 
 /** @param {string} rkey - Record key */
@@ -142,7 +150,7 @@ async function fetchSinglePostFromPreviewDID(rkey) {
         return;
     }
 
-    const { value, uri } = await parseResponseBody(res);
+    const {value, uri} = await parseResponseBody(res);
 
     return {...value, rkey: extractRkeyFromPlainAtURI(uri)}
 }
@@ -237,6 +245,66 @@ async function handlePermalink() {
     }
 }
 
+// from https://tangled.org/zzstoatzz.io/typeahead/blob/main/src/pages/home.ts
+// TODO: MASSIVE CODE CLEANUP, I CAN DO BETTER THAN THIS
+function registerTypeahead(element) {
+    const results = ROOT.querySelector(`.typeahead-results[data-for="${element.id}"]`);
+    if (!results) return;
+
+    let timer = null;
+    element.addEventListener('input', () => {
+        clearTimeout(timer);
+        const v = element.value.trim();
+        if (v.length < 2) {
+            results.classList.remove('show');
+            return;
+        }
+        timer = setTimeout(async () => {
+            try {
+                const r = await fetch(
+                    constructApiUrl('app.bsky.actor.searchActorsTypeahead',
+                        {
+                            q: encodeURIComponent(v),
+                            limit: 3
+                        },
+                        TYPEAHEAD_PROVIDER));
+                const data = await r.json();
+                const actors = data.actors || [];
+                if (actors.length === 0) {
+                    results.innerHTML = '<div class="empty">no results</div>';
+                } else {
+                    results.innerHTML = actors.map(a =>
+                        `<div class="result" onclick="document.getElementById('${element.id}').value='${a.handle}';document.querySelector('.typeahead-results[data-for=${element.id}]').classList.remove('show')">` +
+                        (a.avatar ? '<img src="' + a.avatar + '" alt="">' : '<div class="placeholder"></div>') +
+                        '<div class="info"><div class="name">' + esc(a.displayName || a.handle) + '</div>' +
+                        '<div class="handle">@' + esc(a.handle) + '</div></div></div>'
+                    ).join('');
+                }
+                results.classList.add('show');
+            } catch (e) {
+            }
+        }, 200);
+    });
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.search-wrap')) results.classList.remove('show');
+    });
+    element.addEventListener('focus', () => {
+        if (results.innerHTML) results.classList.add('show');
+    });
+
+    function esc(s) {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+}
+
+async function setupTypeaheadElements() {
+    for (const element of TYPEAHEAD_ELEMENTS) {
+        registerTypeahead(element);
+    }
+}
+
 defineNavigationHook("log-preview", () => {
     fetchAndDisplayLatestLogs()
 })
@@ -245,6 +313,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.location.search) {
         handlePermalink();
     }
-
+    setupTypeaheadElements();
     fetchAndDisplayLatestLogs();
 })

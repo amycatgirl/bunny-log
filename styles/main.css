@@ -26,6 +26,11 @@ body {
     font-family: var(--f-sans), sans-serif;
 }
 
+@media screen and (width < 600px) {
+    body { display: flex; flex-direction: column; }
+    main { max-width: 100vw; margin-inline: 1rem; }
+}
+
 p {
     text-wrap: pretty;
     font-family: var(--f-sans), sans-serif;
@@ -158,6 +163,8 @@ form {
         color: var(--c-danger);
     }
 }
+
+nav ul { padding: 0; }
 
 nav:has(li > a.router-link) ul {
     list-style-type: none;

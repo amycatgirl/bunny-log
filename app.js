@@ -11,7 +11,8 @@ const DEFAULT_PREVIEW_DID = "did:plc:gijpvbkdbr56kazbdjhfvb3d";
 const DEFAULT_PREVIEW_DID_PDS = "https://eurosky.social"
 export const ALLOWED_DIDS = ["did:plc:gijpvbkdbr56kazbdjhfvb3d"];
 const INSTANCE_OPERATOR_HANDLE = "bunniesin.space";
-const INSTANCE_OPERATOR_CONTACTS = [{
+const INSTANCE_OPERATOR_CONTACTS = [
+    {
         type: "stoat",
         value: "amybunnygirl#0122"
     },
@@ -30,6 +31,7 @@ const PLACEHOLDER_MAP = {
     "unauth-op-contact-list": INSTANCE_OPERATOR_CONTACTS.map(({type, value}) => `<li>${type}: ${value}</li>`).join("\n"),
     "unauth-op-contacts-msg": INSTANCE_OPERATOR_HANDLE,
     "preview-latest-handle": DEFAULT_PREVIEW_HANDLE,
+    "log-perma-date": (date) => DATE_FORMATTER.format(date),
 }
 
 const ROOT = document.getElementById('root');
@@ -40,16 +42,40 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
 })
 
 function replacePlaceholders() {
-    ROOT.querySelectorAll('.with-holder').forEach(el => {
+    ROOT.querySelectorAll('.with-holder:not(.lazy)').forEach(el => {
         const pKeys = el.innerHTML.match(/{([a-z-]+)}/g).map(k => k.substring(1, k.length - 1))
         let replaced = el.innerHTML;
 
         for (const key of pKeys) {
+            if (typeof PLACEHOLDER_MAP[key] === "function") continue; // unsupported
+
+            console.info("[APP]", "Applying placeholder", name)
             replaced = replaced.replace(`{${key}}`, PLACEHOLDER_MAP[key])
         }
 
         el.innerHTML = replaced;
     })
+}
+
+function replacePlaceholderFor(element, name, data) {
+    if (!element.classList.contains("with-holder") && !element.classList.contains("lazy")) return;
+    const pKeys = element.innerHTML.match(/{([a-z-]+)}/g).map(k => k.substring(1, k.length - 1))
+    let replaced = element.innerHTML;
+
+    for (const key of pKeys) {
+        if (key === name) {
+            const placeholder = PLACEHOLDER_MAP[key];
+            if (typeof placeholder === "function") {
+                console.info("[APP]", "Applying placeholder", name, "with string", `"${data}"`)
+                replaced = replaced.replace(`{${key}}`, placeholder(data))
+            } else {
+                console.info("[APP]", "Applying placeholder", name)
+                replaced = replaced.replace(`{${key}}`, placeholder)
+            }
+        }
+    }
+
+    element.innerHTML = replaced;
 }
 
 // do this asap
@@ -81,6 +107,7 @@ async function parseResponseBody(response) {
 }
 
 async function fetchPostsFromPreviewDID(previous_cursor) {
+    console.info("[APP]", "Fetching posts from preview DID", DEFAULT_PREVIEW_DID)
     const res = await fetch(constructApiUrl("com.atproto.repo.listRecords", {
         repo: DEFAULT_PREVIEW_DID,
         collection: "space.bunniesin.micro.log",
@@ -101,6 +128,7 @@ async function fetchPostsFromPreviewDID(previous_cursor) {
 
 /** @param {string} rkey - Record key */
 async function fetchSinglePostFromPreviewDID(rkey) {
+    console.info("[APP]", "Fetching", rkey)
     const res = await fetch(constructApiUrl("com.atproto.repo.getRecord", {
         repo: DEFAULT_PREVIEW_DID,
         collection: "space.bunniesin.micro.log",
@@ -121,7 +149,8 @@ async function fetchSinglePostFromPreviewDID(rkey) {
 
 function displayLog(record) {
     if (record["$type"] !== "space.bunniesin.micro.log") throw new Error(`Invalid record type ${record["$type"]}`)
-    
+    console.info("[APP]", "Rendering log", record.rkey)
+
     const logElement = document.createElement('div');
     logElement.classList.add('log');
     const rendered_log = record.content.split("\n\n").map(line => `<p>${line}</p>`).join("\n")
@@ -139,6 +168,7 @@ function displayLog(record) {
 
 export async function fetchAndDisplayLatestLogs(cursor) {
     toggleLoading()
+    console.info("[APP]", "Loading latest logs")
     POST_LIST.innerHTML = "";
 
     try {
@@ -183,16 +213,27 @@ export function displayError(context, message) {
 }
 
 async function handlePermalink() {
-    if (window.location.search) {
-        const tid = new URL(window.location).searchParams.get("log");
+    const tid = new URL(window.location).searchParams.get("log");
 
-        if (!validateTID(tid)) return;
+    if (!validateTID(tid)) return;
 
-        const permalinkWrapper = document.querySelector("#log-permalink .wrapper");
+
+    const permalinkPage = document.getElementById("log-permalink")
+    const permalinkWrapper = permalinkPage.querySelector(".wrapper");
+
+    const title = permalinkPage.querySelector(".with-holder")
+    try {
         const post = await fetchSinglePostFromPreviewDID(tid);
+
+        console.info("[APP]", "Opening permalink for", tid)
+
+        replacePlaceholderFor(title, "log-perma-date", new Date(post.createdAt))
 
         permalinkWrapper.replaceChildren(displayLog(post));
         navigate("log-permalink")
+    } catch (err) {
+        console.error(err)
+        displayError("fetchPreview", err);
     }
 }
 
@@ -201,6 +242,9 @@ defineNavigationHook("log-preview", () => {
 })
 
 document.addEventListener("DOMContentLoaded", () => {
+    if (window.location.search) {
+        handlePermalink();
+    }
+
     fetchAndDisplayLatestLogs();
-    handlePermalink();
 })

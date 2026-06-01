@@ -246,6 +246,7 @@ async function handlePermalink() {
 }
 
 // from https://tangled.org/zzstoatzz.io/typeahead/blob/main/src/pages/home.ts
+// TODO: MASSIVE CODE CLEANUP, I CAN DO BETTER THAN THIS
 function registerTypeahead(element) {
     const results = ROOT.querySelector(`.typeahead-results[data-for="${element.id}"]`);
     if (!results) return;

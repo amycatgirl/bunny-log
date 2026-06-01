@@ -168,7 +168,7 @@ function displayLog(record) {
 
     logElement.innerHTML = `${rendered_log}\n
 <time datetime=${record.createdAt}>${DATE_FORMATTER.format(new Date(record.createdAt))}</time>
-<button class="show-hover" onclick="navigator.clipboard.writeText('${permalink.toString()}')">copy permalink</button>`;
+<button class="show-hover" onclick="navigator.clipboard.writeText('${permalink.toString()}');this.innerHTML='copied! ✨'">copy permalink</button>`;
 
     return logElement
 }

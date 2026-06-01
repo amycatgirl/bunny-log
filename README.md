@@ -39,6 +39,10 @@ ok
 lexicons (if you want to make your own bunny log) are published and are also available on `./lexicons/space/bunniesin/micro/log.json`
 
 
+## how does it look tho
+
+like [this](https://log.bunniesin.space)
+
 ## licence
 
 mit, do whatever the fuck you want

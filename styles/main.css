@@ -1,0 +1,187 @@
+:root {
+    color-scheme: light dark;
+    --f-mono: "Iosevka";
+    --f-sans: "Iosevka Aile";
+    --c-bg: light-dark(#fcf7f3, #262622);
+    --c-fg: light-dark(#262622, #fcf7f3);
+    --c-outline: light-dark(#23231f, #ece0d7);
+    --c-emphasis: light-dark(#7c0b65, #f65fd6);
+    --c-danger: #3cbfe7;
+    --r-slight: 10px;
+}
+
+body {
+    margin-block: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    min-height: 100vh;
+    display: grid;
+    grid-template-areas: ". content .";
+    grid-template-columns: 1fr 70ch  1fr;
+
+    padding-bottom: 1.5rem;
+
+    background-color: var(--c-bg);
+    color: var(--c-fg);
+    font-family: var(--f-sans), sans-serif;
+}
+
+p {
+    text-wrap: pretty;
+    font-family: var(--f-sans), sans-serif;
+}
+
+main {
+    z-index: 2;
+    grid-area: content;
+    max-width: min(60ch, 100vw);
+}
+
+ul {
+    padding-left: 1rem;
+}
+
+li::marker {
+    content: "* ";
+    font-family: var(--f-mono), monospace;
+}
+
+h1 {
+    font-weight: 800;
+}
+
+a:link {
+    color: var(--c-emphasis);
+
+    & h3 {
+        color: var(--c-fg);
+    }
+}
+
+
+
+div#atproto-leaflet {
+    display: flex;
+    flex-direction: column;
+    container-type: inline-size;
+
+    @container (width < 600px) {
+        .entry {
+            max-width: calc(100vw - 2rem);
+        }
+    }
+}
+.entry, .log {
+    transition: width .1s linear;
+    box-sizing: border-box;
+    position: relative;
+
+    padding: 5px 10px;
+    outline: 2px solid var(--c-outline);
+    &:not(:first-child) { margin-top: 1rem; }
+
+    & .base-anchor {
+        position: static;
+        text-decoration: none;
+
+        &::before {
+            content: "";
+            position: absolute;
+            display: block;
+
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        &::after {
+            content: '🡕';
+            position: absolute;
+            display: block;
+            bottom: 1rem;
+            right: 1rem;
+            width: 12px;
+            height: 12px;
+
+            color: var(--c-outline);
+        }
+    }
+
+    & .title {
+        margin-top: 5px;
+    }
+}
+
+time {
+    font-family: var(--f-mono), monospace;
+}
+
+footer { opacity: .3; margin-top: 1rem; }
+
+.unimportant {
+    opacity: .3;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+
+    & textarea {
+        border-radius: var(--r-slight);
+        resize: none;
+        height: 5rem;
+
+        padding: .6rem;
+        font-size: 1.5em;
+
+        border: none;
+
+        &:focus, &:focus-visible {
+            outline: 2px solid var(--c-emphasis);
+        }
+    }
+}
+
+.dangerous {
+    &:is(a.router-link, div, button) {
+        background-color: var(--c-danger);
+        color: var(--c-bg);
+
+        font-weight: 600;
+    }
+
+    &:not(a.router-link, div, button) {
+        color: var(--c-danger);
+    }
+}
+
+nav:has(li > a.router-link) ul {
+    list-style-type: none;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    & li::marker {
+        content: "";
+    }
+}
+
+
+nav li > a.router-link {
+    display: inline-block;
+    width: 100%;
+
+    text-align: center;
+    padding-block: .2rem;
+    padding-inline: .4rem;
+
+    background-color: color-mix(in oklab, var(--c-emphasis) 100%, transparent 50%);
+    color: var(--c-fg);
+}
+
+/* hide elements that are interactively shown */
+.hidden { display: none; }

@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="origin-when-cross-origin">
 
+    <link rel="stylesheet" href="styles/main.css" />
+
     <!-- Import map for debugging purposes -->
     <script type="importmap">
         {
@@ -25,6 +27,7 @@
 <body>
     <main id="root" data-currentpage="log-preview" data-state="unauthorized">
         <header>
+            <p class="unimportant">return to <a href="https://bunniesin.space">bunniesin.space</a></p>
             <hgroup>
                 <h1>bunny log</h1>
                 <p>an atmospheric micro blog detached from the sky</p>
@@ -36,10 +39,10 @@
                         <a class="router-link" href="#" data-action="navigate" data-argument="login">log in</a>
                     </li>
                     <li class="with-session">
-                        <a class="router-link" href="#" data-action="broadcast" data-argument="destroy">log out</a>
+                        <a class="router-link" href="#" data-action="navigate" data-argument="log-new">post</a>
                     </li>
                     <li class="with-session">
-                        <a class="router-link" href="#" data-action="navigate" data-argument="log-new">post</a>
+                        <a class="router-link dangerous" href="#" data-action="broadcast" data-argument="destroy">log out</a>
                     </li>
                 </ul>
             </nav>
@@ -70,7 +73,7 @@
         </section>
         <footer>
             <div class="h-center">
-                <span class="unimportant">adapted from <a href="https://github.com/bluesky-social/cookbook/tree/main/vanillajs-oauth-web-app">vanillajs-oauth-web-app</a> · <a>code</a></span>
+                <span class="unimportant">adapted from <a href="https://github.com/bluesky-social/cookbook/tree/main/vanillajs-oauth-web-app">vanillajs-oauth-web-app</a> · <a href="https://github.com/amycatgirl/bunny-log">code</a></span>
             </div>
         </footer>
     </main>

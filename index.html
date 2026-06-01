@@ -71,6 +71,9 @@
             <p class="with-holder">Please contact {unauth-op-contacts-msg} on any of the following platforms:</p>
             <ul class="with-holder">{unauth-op-contact-list}</ul>
         </section>
+        <section class="page" id="log-permalink">
+            <div class="wrapper"></div>
+        </section>
         <footer>
             <div class="h-center">
                 <span class="unimportant">adapted from <a href="https://github.com/bluesky-social/cookbook/tree/main/vanillajs-oauth-web-app">vanillajs-oauth-web-app</a> · <a href="https://github.com/amycatgirl/bunny-log">code</a></span>
@@ -93,6 +96,10 @@
     }
 
     main[data-currentpage="log-unauthorized"] section.page:not([id="log-unauthorized"]) {
+        display: none;
+    }
+
+    main[data-currentpage="log-permalink"] section.page:not([id="log-permalink"]) {
         display: none;
     }
 

@@ -6,6 +6,6 @@
     "redirect_uris": ["https://log.bunniesin.space"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
-    "scope": "atproto repo:space.bunniesin.micro.log?action=create",
+    "scope": "atproto repo:app.bsky.feed.post?action:create repo:space.bunniesin.micro.log?action=create",
     "token_endpoint_auth_method": "none"
 }

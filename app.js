@@ -316,3 +316,12 @@ document.addEventListener("DOMContentLoaded", () => {
     setupTypeaheadElements();
     fetchAndDisplayLatestLogs();
 })
+
+document.getElementById("log-content").addEventListener('input', (ev) => {
+    if (ev.currentTarget.value.length > 300) {
+        document.getElementById("do-crosspost").disabled = true;
+        document.getElementById("do-crosspost").checked = false;
+    } else {
+        document.getElementById("do-crosspost").disabled = false;
+    }
+})

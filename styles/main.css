@@ -1,3 +1,6 @@
+@import url("/assets/iosevka/Iosevka.css");
+@import url("/assets/iosevka_aile/IosevkaAile.css");
+
 :root {
     color-scheme: light dark;
 

@@ -3,7 +3,7 @@ import { Agent } from '@atproto/api'
 import { displayError, constructApiUrl, ALLOWED_DIDS } from "#app"
 import { navigate } from "#app/router"
 
-const OAUTH_SCOPES = "atproto repo:app.bsky.feed.post?action:create repo:space.bunniesin.micro.log?action=create";
+const OAUTH_SCOPES = "atproto repo:app.bsky.feed.post?action=create repo:space.bunniesin.micro.log?action=create";
 const ROOT = document.querySelector("main[data-currentpage]");
 
 function clientID() {
@@ -108,22 +108,77 @@ function revokeSession() {
     window.location.reload();
 }
 
+// https://stackoverflow.com/a/17980070
+function strip(html)
+{
+    var tmp = document.implementation.createHTMLDocument("New").body;
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+}
+
+/**
+ * @returns {Promise<import("@atproto/api").ComAtprotoRepoCreateRecord.Response> | void}
+ */
+async function createCrosspostedLog(content) {
+    const cleaned = strip(content)
+    if (Array.from(new Intl.Segmenter().segment(cleaned)).length > 300) return;
+
+    try {
+       return await agent.com.atproto.repo.createRecord({
+            repo: agent.did,
+            collection: 'app.bsky.feed.post',
+            record: {
+                "$type": "app.bsky.feed.post",
+                "text": content,
+                createdAt: new Date().toISOString(),
+            }
+        })
+    } catch (err) {
+        displayError("create", err);
+        console.error(err);
+
+    }
+}
+
+async function crosspost(content) {
+    const crosspost = await createCrosspostedLog(content)
+    if (!crosspost.success) throw new Error("Failed to crosspost to bluesky!")
+
+    await agent.com.atproto.repo.createRecord({
+        repo: agent.did,
+        collection: 'space.bunniesin.micro.log',
+        record: {
+            "$type": "space.bunniesin.micro.log",
+            "content": content,
+            "createdAt": new Date().toISOString(),
+            "blueskyPost": {
+                uri: crosspost.data.uri,
+                cid: crosspost.data.cid,
+            }
+        }
+    })
+}
+
 async function createLog(content, form) {
-    form.querySelectorAll('button').forEach(input => {
+    form.querySelectorAll('button, input[type=checkbox]').forEach(input => {
         input.setAttribute('aria-busy', "true");
         input.setAttribute("disabled", true);
     })
 
     try {
-        await agent.com.atproto.repo.createRecord({
-            repo: agent.did,
-            collection: 'space.bunniesin.micro.log',
-            record: {
-                "$type": "space.bunniesin.micro.log",
-                "content": content,
-                createdAt: new Date().toISOString(),
-            }
-        })
+        if (form.querySelector("#do-crosspost").checked) {
+            await crosspost(content)
+        } else {
+            await agent.com.atproto.repo.createRecord({
+                repo: agent.did,
+                collection: 'space.bunniesin.micro.log',
+                record: {
+                    "$type": "space.bunniesin.micro.log",
+                    "content": content,
+                    "createdAt": new Date().toISOString()
+                }
+            })
+        }
 
         navigate("log-preview");
     } catch (err) {
@@ -131,10 +186,13 @@ async function createLog(content, form) {
         console.error(err);
 
     } finally {
-        form.querySelectorAll('button').forEach(input => {
+        form.querySelectorAll('button, input[type=checkbox]').forEach(input => {
             input.removeAttribute('aria-busy');
             input.removeAttribute("disabled");
         })
+
+        // reset form
+        form.querySelector("#log-content").value = "";
     }
 }
 

@@ -10,7 +10,7 @@ const TYPEAHEAD_PROVIDER = "https://typeahead.waow.tech";
 const DEFAULT_PREVIEW_HANDLE = "bunniesin.space";
 const DEFAULT_PREVIEW_DID = "did:plc:gijpvbkdbr56kazbdjhfvb3d";
 const DEFAULT_PREVIEW_DID_PDS = "https://eurosky.social"
-export const ALLOWED_DIDS = ["did:plc:gijpvbkdbr56kazbdjhfvb3d"];
+export const ALLOWED_DIDS = ["did:plc:gijpvbkdbr56kazbdjhfvb3d", "did:plc:5xgmly2j6ak2v2edj75pszeg"];
 const INSTANCE_OPERATOR_HANDLE = "bunniesin.space";
 const INSTANCE_OPERATOR_CONTACTS = [
     {
@@ -315,4 +315,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     setupTypeaheadElements();
     fetchAndDisplayLatestLogs();
+})
+
+document.getElementById("log-content").addEventListener('input', (ev) => {
+    if (ev.currentTarget.value.length > 300) {
+        document.getElementById("do-crosspost").disabled = true;
+        document.getElementById("do-crosspost").checked = false;
+    } else {
+        document.getElementById("do-crosspost").disabled = false;
+    }
 })

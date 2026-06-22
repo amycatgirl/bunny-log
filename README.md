@@ -43,6 +43,16 @@ lexicons (if you want to make your own bunny log) are published and are also ava
 
 like [this](https://log.bunniesin.space)
 
+## developing
+
+run a developer server by using the provided python script:
+```bash
+# "-r" makes a rewrite rule (url:path), we want to serve the development metadata, not the production one.
+python3 ./server.py -r oauth-client-metadata.json:./oauth-client-metadata.dev.json
+```
+
+we love basic ass web apps 💖🐇
+
 ## licence
 
 mit, do whatever the fuck you want

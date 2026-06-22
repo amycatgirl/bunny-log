@@ -161,12 +161,12 @@ function displayLog(record) {
 
     const logElement = document.createElement('div');
     logElement.classList.add('log');
-    const rendered_log = record.content.split("\n\n").map(line => `<p>${line.replace("\n", "<br />")}</p>`).join("\n")
+    const rendered_log = record.content.split("\n\n").map(line => `<p>${line.replace(/\n|\n\r/g, "<br />")}</p>`).join("")
 
     const permalink = new URL(window.location);
     permalink.searchParams.set("log", record.rkey);
 
-    logElement.innerHTML = `${rendered_log}\n
+    logElement.innerHTML = `${rendered_log}
 <time datetime=${record.createdAt}>${DATE_FORMATTER.format(new Date(record.createdAt))}</time>
 <button class="show-hover" onclick="navigator.clipboard.writeText('${permalink.toString()}');this.innerHTML='copied! ✨'">copy permalink</button>`;
 

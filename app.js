@@ -161,7 +161,7 @@ function displayLog(record) {
 
     const logElement = document.createElement('div');
     logElement.classList.add('log');
-    const rendered_log = record.content.split("\n\n").map(line => `<p>${line}</p>`).join("\n")
+    const rendered_log = record.content.split("\n\n").map(line => `<p>${line.replace("\n", "<br />")}</p>`).join("\n")
 
     const permalink = new URL(window.location);
     permalink.searchParams.set("log", record.rkey);

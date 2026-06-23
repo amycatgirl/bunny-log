@@ -1,6 +1,6 @@
 import { BrowserOAuthClient } from '@atproto/oauth-client-browser'
 import { Agent } from '@atproto/api'
-import { displayError, constructApiUrl, ALLOWED_DIDS } from "#app"
+import { displayError, now, constructApiUrl, toGraphemeSegments, ALLOWED_DIDS } from "#app"
 import { navigate } from "#app/router"
 
 const OAUTH_SCOPES = "atproto repo:app.bsky.feed.post?action=create repo:space.bunniesin.micro.log?action=create";
@@ -117,36 +117,62 @@ function strip(html)
 }
 
 /**
+ * @param {number} length
+ * @param {string} content
+ * @param {string} generatedTID
+ * @returns {import("@atproto/api").AppBskyEmbedExternal.External}
+ */
+function generateEmbedForContent(length, content, generatedTID) {
+    return {
+        "$type": "app.bsky.embed.external",
+        external: {
+            uri: `${window.location.href}?log=${generatedTID}`,
+            title: length > 63 ? content.substring(0, 60) + "..." : content,
+            description: (length > 63 ? "View the full post in bunny log." : "")
+        }
+    }
+}
+
+/**
  * @returns {Promise<import("@atproto/api").ComAtprotoRepoCreateRecord.Response> | void}
  */
-async function createCrosspostedLog(content) {
-    const cleaned = strip(content)
-    if (Array.from(new Intl.Segmenter().segment(cleaned)).length > 300) return;
+async function createCrosspostedLog(tid, content) {
+    /** @type {string} */
+    let text = toGraphemeSegments(strip(content))
+    const embedRecord = generateEmbedForContent(length, text.join(""), tid)
+    if (text.length > 300) {
+        text = [...content.slice(0, 299), "..."]
+    }
 
+    text = text.join("")
+    
     try {
        return await agent.com.atproto.repo.createRecord({
             repo: agent.did,
             collection: 'app.bsky.feed.post',
+            rkey: tid,
+            validate: true,
             record: {
                 "$type": "app.bsky.feed.post",
-                "text": content,
+                text,
+                embed: embedRecord,
                 createdAt: new Date().toISOString(),
             }
         })
     } catch (err) {
         displayError("create", err);
         console.error(err);
-
     }
 }
 
-async function crosspost(content) {
-    const crosspost = await createCrosspostedLog(content)
-    if (!crosspost.success) throw new Error("Failed to crosspost to bluesky!")
+async function crosspost(content, tid) {
+    const crosspost = await createCrosspostedLog(tid, content)
+    if (!crosspost.success) throw new Error(crosspost)
 
     await agent.com.atproto.repo.createRecord({
         repo: agent.did,
         collection: 'space.bunniesin.micro.log',
+        rkey: tid,
         record: {
             "$type": "space.bunniesin.micro.log",
             "content": content,
@@ -164,14 +190,16 @@ async function createLog(content, form) {
         input.setAttribute('aria-busy', "true");
         input.setAttribute("disabled", true);
     })
+    const tid = now();
 
     try {
         if (form.querySelector("#do-crosspost").checked) {
-            await crosspost(content)
+            await crosspost(content, tid)
         } else {
             await agent.com.atproto.repo.createRecord({
                 repo: agent.did,
                 collection: 'space.bunniesin.micro.log',
+                rkey: tid,
                 record: {
                     "$type": "space.bunniesin.micro.log",
                     "content": content,

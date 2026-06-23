@@ -1,10 +1,92 @@
 import {defineNavigationHook, navigate} from "#app/router"
 
-// https://npmx.dev/package-code/@atcute/tid/v/1.1.2/lib%2Findex.ts
+// @atcute/tid START
 const TID_RE = /^[234567abcdefghij][234567abcdefghijklmnopqrstuvwxyz]{12}$/;
+const S32_CHAR = '234567abcdefghijklmnopqrstuvwxyz';
+
+let lastTimestamp = 0;
+let lastCurrentTime = 0;
+
+const S32_2CHAR_TABLE = (() => {
+  /** @type {string[1024]} */
+	const table = Array.from({ length: 1024 });
+	for (let i = 0; i < 1024; i++) {
+		const hi = S32_CHAR.charAt((i >> 5) & 31);
+		const lo = S32_CHAR.charAt(i & 31);
+		table[i] = hi + lo;
+	}
+	return table;
+})();
+
+/**
+ * @param {number} i
+ * @returns {string}
+ */ 
+const s32encode = (i) => {
+	let s = '';
+	while (i) {
+		const c = i % 32;
+		i = Math.floor(i / 32);
+		s = S32_CHAR.charAt(c) + s;
+	}
+
+	return s;
+}
+
+const random = (max) => {
+	return Math.floor(Math.random() * max);
+};
+
 const validateTID = (tid) => {
     return tid.length === 13 && TID_RE.test(tid);
 };
+
+/**
+ * Creates a TID based off provided timestamp and clockid, with no validation.
+ * @param {number} timestamp
+ * @param {number} clockid
+ * @returns {string}
+ */
+export const createRaw = (timestamp, clockid) => {
+	return s32encode(timestamp).padStart(11, '2') + S32_2CHAR_TABLE[clockid];
+};
+
+/**
+ * Creates a TID based off provided timestamp and clockid
+ * @param {number} timestamp
+ * @param {number} clockid
+ * @returns {string}
+ */
+export const create = (timestamp, clockid) => {
+	if (timestamp < 0 || !Number.isSafeInteger(timestamp)) {
+		throw new Error(`invalid timestamp`);
+	}
+	if (clockid < 0 || clockid > 1023) {
+		throw new Error(`invalid clockid`);
+	}
+	return createRaw(timestamp, clockid);
+};
+
+/**
+ * Return a TID based on current time
+ * @returns {string}
+ */
+export const now = () => {
+	const currentTime = Date.now() * 1_000;
+	let timestamp;
+	if (currentTime === lastCurrentTime) {
+		// same time; increment to avoid collision
+		timestamp = lastTimestamp + 1;
+	} else {
+		// time changed
+		timestamp = currentTime;
+		lastCurrentTime = currentTime;
+	}
+	lastTimestamp = timestamp;
+	return createRaw(timestamp, random(1024));
+};
+
+// @atcute/tid END
 
 const TYPEAHEAD_PROVIDER = "https://typeahead.waow.tech";
 const DEFAULT_PREVIEW_HANDLE = "bunniesin.space";
@@ -26,6 +108,7 @@ const INSTANCE_OPERATOR_CONTACTS = [
         value: "@bunniesin.space"
     }
 ];
+
 let preview_cursor;
 
 /* placeholder replacement map */
@@ -49,6 +132,17 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
     dateStyle: "short"
 })
 
+/**
+ * utf16 -> utf8 segments -> utf16 segments for processing in native js
+ * @type {string} string
+ * @type {string} [lang] - Language to use for segmenter, defaults to "en".
+ * @type {Intl.SegmenterOptions} [options] - Options to pass to `Intl.Segmenter`
+ * @returns {string[]}
+ */
+export function toGraphemeSegments(string, lang = "en", options = { granularity: "grapheme" }) {
+    return [...new Intl.Segmenter(lang, options).segment(string)].map(s => s.segment);
+}
+
 function replacePlaceholders() {
     ROOT.querySelectorAll('.with-holder:not(.lazy)').forEach(el => {
         const pKeys = el.innerHTML.match(/{([a-z-]+)}/g).map(k => k.substring(1, k.length - 1))
@@ -57,7 +151,7 @@ function replacePlaceholders() {
         for (const key of pKeys) {
             if (typeof PLACEHOLDER_MAP[key] === "function") continue; // unsupported
 
-            console.info("[APP]", "Applying placeholder", name)
+            console.info("[APP]", "Applying placeholder", key)
             replaced = replaced.replace(`{${key}}`, PLACEHOLDER_MAP[key])
         }
 
@@ -124,7 +218,7 @@ async function fetchPostsFromPreviewDID(previous_cursor) {
 
     if (!res.ok) {
         console.error("[APP]", "failed to fetch latest logs:", res.statusText)
-        displayError("fetchPreviewList", res.statusText)
+        displayError("fetchPreviewList", JSON.stringify(res))
         return;
     }
 
@@ -191,7 +285,6 @@ export async function fetchAndDisplayLatestLogs(cursor) {
     } finally {
         toggleLoading()
     }
-
 }
 
 export function displayError(context, message) {
@@ -222,7 +315,7 @@ export function displayError(context, message) {
 
 async function handlePermalink() {
     const tid = new URL(window.location).searchParams.get("log");
-
+    if (!tid) return; //this is not for us.
     if (!validateTID(tid)) return;
 
 

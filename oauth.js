@@ -127,9 +127,9 @@ function generateEmbedForContent(length, content, generatedTID) {
         "$type": "app.bsky.embed.external",
         external: {
             uri: `${window.location.href}?log=${generatedTID}`,
-            title: length > 63 ? content.substring(0, 60) + "..." : content,
-            description: (length > 63 ? "View the full post in bunny log." : "")
-        }
+            title: "View in bunny log",
+            description: length > 63 ? content.substring(0, 60) + "..." : "" // Skip description because otherwise it looks weird and repetitive
+	}
     }
 }
 

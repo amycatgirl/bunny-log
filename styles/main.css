@@ -337,6 +337,11 @@ nav li:has(a.router-link) {
     & .handle { opacity: .5; font-size: 0.75rem; display: inline-block; }
 }
 
+button:disabled {
+    opacity: .5;
+    cursor: disabled;
+}
+
 /* hide elements that are interactively shown */
 .hidden { display: none; }
 

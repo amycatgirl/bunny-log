@@ -189,9 +189,16 @@ function toggleLoading() {
     loader.classList.toggle('hidden');
 }
 
-
-function extractRkeyFromPlainAtURI(uri) {
-    return uri.split("/").at(-1)
+/**
+ * Gets parts of an AT URI
+ * @param {string} uri
+ * @returns {{identity: string, collection: string, rkey: string]}}
+ */
+function getATURIParts(uri) {
+  const match = RE_ATURI.exec(uri);
+  return {
+    ...(match.groups ?? { identity: null, collection: null, rkey: null }),
+  };
 }
 
 export function makeXRPC(
@@ -229,7 +236,10 @@ async function fetchPostsFromPreviewDID(previous_cursor) {
     const {cursor, records} = await parseResponseBody(res)
     preview_cursor = cursor;
 
-    return records.map(record => ({...record.value, rkey: extractRkeyFromPlainAtURI(record.uri)}));
+  return records.map((record) => ({
+    ...record.value,
+    rkey: getATURIParts(record.uri).rkey,
+  }));
 }
 
 /** @param {string} rkey - Record key */
@@ -250,7 +260,7 @@ async function fetchSinglePostFromPreviewDID(rkey) {
 
     const {value, uri} = await parseResponseBody(res);
 
-    return {...value, rkey: extractRkeyFromPlainAtURI(uri)}
+  return { ...value, rkey: getATURIParts(uri).rkey };
 }
 
 function displayLog(record) {

@@ -2,7 +2,7 @@
 // Author: Amelia Bunny <amy+git@amogus.cloud>
 // Licence: Expat
 // Code:
-import { constructApiUrl } from "#app";
+import { makeXRPC } from "#app";
 
 /**
  * @template T
@@ -41,7 +41,7 @@ const CONSTELLATION_ROOT = "https://constellation.microcosm.blue";
  * console.log(`In this page there are ${backlinks.total} backlinks; the first one:`, backlinks.records.at(0));
  */
 async function getBacklinks(subject, source, options = {}) {
-  const request_url = constructApiUrl(
+  const request_url = makeXRPC(
     "blue.microcosm.links.getBacklinks",
     { subject, source, ...options },
     CONSTELLATION_ROOT,
@@ -60,7 +60,7 @@ async function getBacklinks(subject, source, options = {}) {
  * @returns {Promise<number>}
  */
 async function getBacklinksCount(subject, source) {
-  const request_url = constructApiUrl(
+  const request_url = makeXRPC(
     "blue.microcosm.links.getBacklinksCount",
     { subject, source },
     CONSTELLATION_ROOT,

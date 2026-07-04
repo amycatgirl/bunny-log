@@ -351,16 +351,23 @@ async function displayLog(record) {
   const permalink = new URL(window.location);
   permalink.searchParams.set("log", record.rkey);
 
-  let likes;
+  let bsky_info = {
+    likes: null,
+    full_url: null,
+  };
   if (record.blueskyPost) {
-    likes = await getBacklinksCount(
+    bsky_info.likes = await getBacklinksCount(
       record.blueskyPost.uri,
       "app.bsky.feed.like:subject.uri",
     );
+
+    const parts = getATURIParts(record.blueskyPost.uri);
+    bsky_info.full_url = `https://mu.social/profile/${parts.identity}/post/${parts.rkey}`;
   }
 
+  // TODO: Refactor this into a builder
   logElement.innerHTML = `${rendered_log}
-<div class="meta"><time datetime=${record.createdAt}>${DATE_FORMATTER.format(new Date(record.createdAt))}</time>${likes ? ` · <span>❤️ ${likes}</span>` : ""}</div>
+<div class="meta"><time datetime=${record.createdAt}>${DATE_FORMATTER.format(new Date(record.createdAt))}</time>${bsky_info.likes ? ` · <span>❤️ ${bsky_info.likes}</span>` : ""}${bsky_info.full_url ? ` · <a target="_blank" href=${bsky_info.full_url}>bluesky</a>` : ""}</div>
 <button class="show-hover" onclick="navigator.clipboard.writeText('${permalink.toString()}');this.innerHTML='copied! ✨'">copy permalink</button>`;
 
   return logElement;

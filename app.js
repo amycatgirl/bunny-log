@@ -134,7 +134,7 @@ const INSTANCE_OPERATOR_CONTACTS = [
   },
 ];
 
-let preview_cursor;
+let previous_cursor = null;
 
 /* placeholder replacement map */
 /**
@@ -156,7 +156,7 @@ const POST_LIST = document.getElementById("postlist-wrapper");
 const TYPEAHEAD_ELEMENTS = document.querySelectorAll(
   'input[type="text"].with-typeahead',
 );
-
+const PAGINATION_MARKER = document.getElementById("postlist--pagination-marker");
 const DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
   timeStyle: "long",
   dateStyle: "short",
@@ -253,7 +253,7 @@ function toggleLoading() {
 /**
  * Gets parts of an AT URI
  * @param {string} uri
- * @returns {{identity: string, collection: string, rkey: string]}}
+ * @returns {{identity: string, collection: string, rkey: string}}
  */
 function getATURIParts(uri) {
   const match = RE_ATURI.exec(uri);
@@ -279,13 +279,13 @@ export function makeXRPC(nsid, params, appview = DEFAULT_PREVIEW_DID_PDS) {
   return url.toString();
 }
 
-async function fetchPostsFromPreviewDID(previous_cursor) {
+async function fetchPostsFromPreviewDID(next_cursor) {
   console.info("[APP]", "Fetching posts from preview DID", DEFAULT_PREVIEW_DID);
   const res = await fetch(
     makeXRPC("com.atproto.repo.listRecords", {
       repo: DEFAULT_PREVIEW_DID,
       collection: "space.bunniesin.micro.log",
-      cursor: previous_cursor,
+      cursor: next_cursor,
     }),
   );
 
@@ -295,8 +295,8 @@ async function fetchPostsFromPreviewDID(previous_cursor) {
     return;
   }
 
-  const { cursor, records } = await res.json(res);
-  preview_cursor = cursor;
+  const { cursor, records } = await res.json();
+  previous_cursor = cursor;
 
   return records.map((record) => ({
     ...record.value,
@@ -376,7 +376,7 @@ async function displayLog(record) {
 export async function fetchAndDisplayLatestLogs(cursor) {
   toggleLoading();
   console.info("[APP]", "Loading latest logs");
-  POST_LIST.innerHTML = "";
+  if (!cursor) { POST_LIST.innerHTML = ""; }
 
   try {
     const logs = await fetchPostsFromPreviewDID(cursor);
@@ -526,3 +526,16 @@ document.addEventListener("DOMContentLoaded", () => {
   setupTypeaheadElements();
   fetchAndDisplayLatestLogs();
 });
+
+const infiniteScrollObserver = new IntersectionObserver((entries) => {
+  if (entries[0].intersectionRatio <= 0) return;
+  console.debug("[IS]", "Marker is in view, attempting to fetch next items in list");
+
+  if (previous_cursor) {
+    fetchAndDisplayLatestLogs(previous_cursor);
+  } else {
+    console.debug("[IS]", "No more items to be loaded.")
+  }
+})
+
+infiniteScrollObserver.observe(PAGINATION_MARKER, { root: POST_LIST, rootMargin: "0px", scrollMargin: "0px", threshold: 0.25});

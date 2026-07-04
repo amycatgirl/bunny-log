@@ -279,10 +279,6 @@ export function makeXRPC(nsid, params, appview = DEFAULT_PREVIEW_DID_PDS) {
   return url.toString();
 }
 
-async function parseResponseBody(response) {
-  return await response.json();
-}
-
 async function fetchPostsFromPreviewDID(previous_cursor) {
   console.info("[APP]", "Fetching posts from preview DID", DEFAULT_PREVIEW_DID);
   const res = await fetch(
@@ -299,7 +295,7 @@ async function fetchPostsFromPreviewDID(previous_cursor) {
     return;
   }
 
-  const { cursor, records } = await parseResponseBody(res);
+  const { cursor, records } = await res.json(res);
   preview_cursor = cursor;
 
   return records.map((record) => ({
@@ -330,7 +326,7 @@ async function fetchSinglePostFromPreviewDID(rkey) {
     return;
   }
 
-  const { value, uri } = await parseResponseBody(res);
+  const { value, uri } = await res.json(res);
 
   return { ...value, rkey: getATURIParts(uri).rkey };
 }

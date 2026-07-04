@@ -194,14 +194,18 @@ function extractRkeyFromPlainAtURI(uri) {
     return uri.split("/").at(-1)
 }
 
-export function constructApiUrl(endpoint_nsid, options, api = DEFAULT_PREVIEW_DID_PDS) {
-    const url = new URL(`${api}/xrpc/${endpoint_nsid}`);
-    for (const [key, value] of Object.entries(options)) {
-        if (!value) continue;
-        url.searchParams.set(key, value)
-    }
+export function makeXRPC(
+  endpoint_nsid,
+  options,
+  api = DEFAULT_PREVIEW_DID_PDS,
+) {
+  const url = new URL(`${api}/xrpc/${endpoint_nsid}`);
+  for (const [key, value] of Object.entries(options)) {
+    if (!value) continue;
+    url.searchParams.set(key, value);
+  }
 
-    return url.toString()
+  return url.toString();
 }
 
 async function parseResponseBody(response) {

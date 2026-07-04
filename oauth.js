@@ -156,11 +156,11 @@ function generateEmbedForContent(length, content, generatedTID) {
  * @returns {Promise<import("@atproto/api").ComAtprotoRepoCreateRecord.Response> | void}
  */
 async function createCrosspostedLog(tid, content) {
-  /** @type {string} */
+  /** @type {string | string[]} */
   let text = toGraphemeSegments(strip(content));
   const embedRecord = generateEmbedForContent(length, text.join(""), tid);
   if (text.length > 300) {
-    text = [...content.slice(0, 299), "..."];
+    text = [...content.slice(0, 296), "..."];
   }
 
   text = text.join("");

@@ -262,13 +262,16 @@ function getATURIParts(uri) {
   };
 }
 
-export function makeXRPC(
-  endpoint_nsid,
-  options,
-  api = DEFAULT_PREVIEW_DID_PDS,
-) {
-  const url = new URL(`${api}/xrpc/${endpoint_nsid}`);
-  for (const [key, value] of Object.entries(options)) {
+/**
+ * Makes an XRPC URL, used in tandem with {@link fetch}
+ * @param {string} nsid - NSID of the endpoint to querySelectorAll
+ * @param {Record<string, string>} params - Query parameters to pass to the querySelectorAll
+ * @param {string} [appview] - API hostname, defaults to {@link DEFAULT_PREVIEW_DID_PDS}
+ * @returns {string}
+ */
+export function makeXRPC(nsid, params, appview = DEFAULT_PREVIEW_DID_PDS) {
+  const url = new URL(`${appview}/xrpc/${nsid}`);
+  for (const [key, value] of Object.entries(params)) {
     if (!value) continue;
     url.searchParams.set(key, value);
   }

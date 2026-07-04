@@ -124,6 +124,7 @@
                     <div class="pager">
                         <!-- pages go here, how do we calculate how many are left from cursor n without an appview? -->
                     </div>
+                    <div id="postlist--pagination-marker" style="height: 3px;"></div>
                 </div>
             </section>
             <section class="page" id="log-unauthorized">
@@ -161,8 +162,7 @@
     </body>
 
     <style>
-        main[data-currentpage="log-preview"]
-            section.page:not([id="log-preview"]) {
+        main[data-currentpage="log-preview"] section.page:not([id="log-preview"]) {
             display: none;
         }
 
@@ -174,13 +174,11 @@
             display: none;
         }
 
-        main[data-currentpage="log-unauthorized"]
-            section.page:not([id="log-unauthorized"]) {
+        main[data-currentpage="log-unauthorized"] section.page:not([id="log-unauthorized"]) {
             display: none;
         }
 
-        main[data-currentpage="log-permalink"]
-            section.page:not([id="log-permalink"]) {
+        main[data-currentpage="log-permalink"] section.page:not([id="log-permalink"]) {
             display: none;
         }
 

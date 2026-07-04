@@ -1,131 +1,203 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>bunny log</title>
-    <meta name="description" content="atmospheric micro blog detached from the sky">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="referrer" content="origin-when-cross-origin">
-	<link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles/main.css" />
+    <head>
+        <meta charset="UTF-8" />
+        <title>bunny log</title>
+        <meta
+            name="description"
+            content="atmospheric micro blog detached from the sky"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="referrer" content="origin-when-cross-origin" />
+        <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+        <link rel="stylesheet" href="styles/main.css" />
 
-    <!-- Import map for debugging purposes -->
-    <script type="importmap">
-        {
-            "imports": {
-                "@atproto/oauth-client-browser": "https://esm.sh/@atproto/oauth-client-browser@0.3.29",
-                "@atproto/api": "https://esm.sh/@atproto/api@0.16.4",
-                "#app": "./app.js",
-                "#app/router": "./router.js"
+        <!-- Import map for debugging purposes -->
+        <script type="importmap">
+            {
+                "imports": {
+                    "@atproto/oauth-client-browser": "https://esm.sh/@atproto/oauth-client-browser@0.3.29",
+                    "@atproto/api": "https://esm.sh/@atproto/api@0.16.4",
+                    "#app": "./app.js",
+                    "#app/microcosm": "./microcosm.js",
+                    "#app/router": "./router.js"
+                }
+            }
+        </script>
+        <script type="module" defer src="router.js"></script>
+        <script type="module" defer src="oauth.js"></script>
+        <script type="module" defer src="app.js"></script>
+    </head>
+    <body>
+        <main
+            id="root"
+            data-currentpage="log-preview"
+            data-state="unauthorized"
+        >
+            <header>
+                <p class="unimportant">
+                    return to
+                    <a href="https://bunniesin.space">bunniesin.space</a>
+                </p>
+                <hgroup>
+                    <h1>bunny log</h1>
+                    <p>an atmospheric micro blog detached from the sky</p>
+                </hgroup>
+                <nav>
+                    <ul>
+                        <li>
+                            <a
+                                class="router-link"
+                                href="#"
+                                data-action="navigate"
+                                data-argument="log-preview"
+                                >logs</a
+                            >
+                        </li>
+                        <li class="without-session">
+                            <a
+                                class="router-link"
+                                href="#"
+                                data-action="navigate"
+                                data-argument="login"
+                                >log in</a
+                            >
+                        </li>
+                        <li class="with-session">
+                            <a
+                                class="router-link"
+                                href="#"
+                                data-action="navigate"
+                                data-argument="log-new"
+                                >post</a
+                            >
+                        </li>
+                        <li class="with-session dangerous">
+                            <a
+                                class="router-link"
+                                href="#"
+                                data-action="broadcast"
+                                data-argument="destroy"
+                                >log out</a
+                            >
+                        </li>
+                    </ul>
+                </nav>
+            </header>
+            <section class="without-session page" id="login">
+                <h2>log in</h2>
+                <form id="login-form">
+                    <label for="handle-input">handle</label>
+                    <input
+                        class="with-typeahead"
+                        type="text"
+                        id="handle-input"
+                        name="handle"
+                        placeholder="bunniesin.space"
+                        autocomplete="off"
+                    />
+                    <div
+                        class="typeahead-results"
+                        data-for="handle-input"
+                    ></div>
+                    <button type="submit">log in with oauth</button>
+                </form>
+            </section>
+            <section class="with-session page" id="log-new">
+                <h2>new log</h2>
+                <form id="log-form">
+                    <textarea id="log-content"></textarea>
+                    <div>
+                        <input type="checkbox" id="do-crosspost" checked />
+                        <label for="do-crosspost">crosspost to bluesky?</label>
+                    </div>
+                    <button type="submit">
+                        subject netizens to your bullshit
+                    </button>
+                </form>
+            </section>
+            <section class="page" id="log-preview">
+                <h2 class="with-holder">latest from {preview-latest-handle}</h2>
+                <span class="hidden" id="loader">loading...</span>
+                <div class="v-list" id="postlist-wrapper"></div>
+                <div id="postlist--pagination-controller">
+                    <div class="pager">
+                        <!-- pages go here, how do we calculate how many are left from cursor n without an appview? -->
+                    </div>
+                </div>
+            </section>
+            <section class="page" id="log-unauthorized">
+                <h2>
+                    you are not authorized to use this instance of bunny log
+                </h2>
+                <p class="with-holder">
+                    Please contact {unauth-op-contacts-msg} on any of the
+                    following platforms:
+                </p>
+                <ul class="with-holder">
+                    {unauth-op-contact-list}
+                </ul>
+            </section>
+            <section class="page" id="log-permalink">
+                <h2 class="with-holder lazy">Log from {log-perma-date}</h2>
+                <div class="wrapper"></div>
+            </section>
+            <footer>
+                <div class="show-hover h-center">
+                    <span
+                        >adapted from
+                        <a
+                            href="https://github.com/bluesky-social/cookbook/tree/main/vanillajs-oauth-web-app"
+                            >vanillajs-oauth-web-app</a
+                        >
+                        ·
+                        <a href="https://github.com/amycatgirl/bunny-log"
+                            >code</a
+                        ></span
+                    >
+                </div>
+            </footer>
+        </main>
+    </body>
+
+    <style>
+        main[data-currentpage="log-preview"]
+            section.page:not([id="log-preview"]) {
+            display: none;
+        }
+
+        main[data-currentpage="log-new"] section.page:not([id="log-new"]) {
+            display: none;
+        }
+
+        main[data-currentpage="login"] section.page:not([id="login"]) {
+            display: none;
+        }
+
+        main[data-currentpage="log-unauthorized"]
+            section.page:not([id="log-unauthorized"]) {
+            display: none;
+        }
+
+        main[data-currentpage="log-permalink"]
+            section.page:not([id="log-permalink"]) {
+            display: none;
+        }
+
+        main[data-state="authorized"] {
+            & .without-session {
+                display: none;
             }
         }
-    </script>
-    <script type="module" defer src="router.js"></script>
-    <script type="module" defer src="oauth.js"></script>
-    <script type="module" defer src="app.js"></script>
-</head>
-<body>
-    <main id="root" data-currentpage="log-preview" data-state="unauthorized">
-        <header>
-            <p class="unimportant">return to <a href="https://bunniesin.space">bunniesin.space</a></p>
-            <hgroup>
-                <h1>bunny log</h1>
-                <p>an atmospheric micro blog detached from the sky</p>
-            </hgroup>
-            <nav>
-                <ul>
-                    <li><a class="router-link" href="#" data-action="navigate" data-argument="log-preview">logs</a></li>
-                    <li class="without-session">
-                        <a class="router-link" href="#" data-action="navigate" data-argument="login">log in</a>
-                    </li>
-                    <li class="with-session">
-                        <a class="router-link" href="#" data-action="navigate" data-argument="log-new">post</a>
-                    </li>
-                    <li class="with-session dangerous">
-                        <a class="router-link" href="#" data-action="broadcast" data-argument="destroy">log out</a>
-                    </li>
-                </ul>
-            </nav>
-        </header>
-        <section class="without-session page" id="login">
-            <h2>log in</h2>
-            <form id="login-form">
-                <label for="handle-input">handle</label>
-                <input  class="with-typeahead"
-                        type="text" id="handle-input" name="handle"
-                        placeholder="bunniesin.space"
-                        autocomplete="off">
-                <div class="typeahead-results" data-for="handle-input"></div>
-                <button type="submit">log in with oauth</button>
-            </form>
-        </section>
-        <section class="with-session page" id="log-new">
-            <h2>new log</h2>
-            <form id="log-form">
-                <textarea id="log-content"></textarea>
-                <div>
-                    <input type="checkbox" id="do-crosspost" checked>
-                    <label for="do-crosspost">crosspost to bluesky?</label>
-                </div>
-                <button type="submit">subject netizens to your bullshit</button>
-            </form>
-        </section>
-        <section class="page" id="log-preview">
-            <h2 class="with-holder">latest from {preview-latest-handle}</h2>
-            <span class="hidden" id="loader">loading...</span>
-            <div class="v-list" id="postlist-wrapper"></div>
-            <div id="postlist--pagination-controller">
-                <div class="pager">
-                <!-- pages go here, how do we calculate how many are left from cursor n without an appview? -->
-                </div>
-            </div>
-        </section>
-        <section class="page" id="log-unauthorized">
-            <h2>you are not authorized to use this instance of bunny log</h2>
-            <p class="with-holder">Please contact {unauth-op-contacts-msg} on any of the following platforms:</p>
-            <ul class="with-holder">{unauth-op-contact-list}</ul>
-        </section>
-        <section class="page" id="log-permalink">
-            <h2 class="with-holder lazy">Log from {log-perma-date}</h2>
-            <div class="wrapper"></div>
-        </section>
-        <footer>
-            <div class="show-hover h-center">
-                <span>adapted from <a href="https://github.com/bluesky-social/cookbook/tree/main/vanillajs-oauth-web-app">vanillajs-oauth-web-app</a> · <a href="https://github.com/amycatgirl/bunny-log">code</a></span>
-            </div>
-        </footer>
-    </main>
-</body>
 
-<style>
-    main[data-currentpage="log-preview"] section.page:not([id="log-preview"]) {
-        display: none;
-    }
+        main[data-state="unauthorized"] {
+            & .with-session {
+                display: none;
+            }
+        }
 
-    main[data-currentpage="log-new"] section.page:not([id="log-new"]) {
-        display: none;
-    }
-
-    main[data-currentpage="login"] section.page:not([id="login"]) {
-        display: none;
-    }
-
-    main[data-currentpage="log-unauthorized"] section.page:not([id="log-unauthorized"]) {
-        display: none;
-    }
-
-    main[data-currentpage="log-permalink"] section.page:not([id="log-permalink"]) {
-        display: none;
-    }
-
-    main[data-state="authorized"] {
-        & .without-session { display: none; }
-    }
-
-    main[data-state="unauthorized"] {
-        & .with-session { display: none; }
-    }
-
-    .hidden { display: none; }
-</style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </html>

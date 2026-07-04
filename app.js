@@ -516,6 +516,7 @@ async function setupTypeaheadElements() {
 }
 
 defineNavigationHook("log-preview", () => {
+  previous_cursor = null;
   fetchAndDisplayLatestLogs();
 });
 

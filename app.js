@@ -442,7 +442,7 @@ async function handlePermalink() {
 
     replacePlaceholderFor(title, "log-perma-date", new Date(post.createdAt));
 
-    permalinkWrapper.replaceChildren(displayLog(post));
+    permalinkWrapper.replaceChildren(await displayLog(post));
     navigate("log-permalink");
   } catch (err) {
     console.error(err);

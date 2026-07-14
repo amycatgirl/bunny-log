@@ -36,7 +36,7 @@ are we on the same page?
 
 ok
 
-lexicons (if you want to make your own bunny log) are published and are also available on `./lexicons/space/bunniesin/micro/log.json`
+lexicons (if you want to make your own bunny log) are published and are also available on `./lexicons/space/bunniesin/log/entry.json`
 
 
 ## how does it look tho

@@ -319,7 +319,7 @@ async function fetchSinglePostFromPreviewDID(rkey) {
   const res = await fetch(
     makeXRPC("com.atproto.repo.getRecord", {
       repo: DEFAULT_PREVIEW_DID,
-      collection: "space.bunniesin.micro.log",
+      collection: "space.bunniesin.log.entry",
       rkey,
     }),
   );

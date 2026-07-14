@@ -10,7 +10,7 @@ import {
 import { navigate } from "#app/router";
 
 const OAUTH_SCOPES =
-  "atproto repo:app.bsky.feed.post?action=create repo:space.bunniesin.micro.log?action=create";
+  "atproto repo:app.bsky.feed.post?action=create repo:space.bunniesin.log.entry?action=create";
 const ROOT = document.querySelector("main[data-currentpage]");
 
 function clientID() {
@@ -190,10 +190,10 @@ async function crosspost(content, tid) {
 
   await agent.com.atproto.repo.createRecord({
     repo: agent.did,
-    collection: "space.bunniesin.micro.log",
+    collection: "space.bunniesin.log.entry",
     rkey: tid,
     record: {
-      $type: "space.bunniesin.micro.log",
+      $type: "space.bunniesin.log.entry",
       content: content,
       createdAt: new Date().toISOString(),
       blueskyPost: {
@@ -217,10 +217,10 @@ async function createLog(content, form) {
     } else {
       await agent.com.atproto.repo.createRecord({
         repo: agent.did,
-        collection: "space.bunniesin.micro.log",
+        collection: "space.bunniesin.log.entry",
         rkey: tid,
         record: {
-          $type: "space.bunniesin.micro.log",
+          $type: "space.bunniesin.log.entry",
           content: content,
           createdAt: new Date().toISOString(),
         },

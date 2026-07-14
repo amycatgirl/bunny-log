@@ -284,7 +284,7 @@ async function fetchPostsFromPreviewDID(next_cursor) {
   const res = await fetch(
     makeXRPC("com.atproto.repo.listRecords", {
       repo: DEFAULT_PREVIEW_DID,
-      collection: "space.bunniesin.micro.log",
+      collection: "space.bunniesin.log.entry",
       cursor: next_cursor,
     }),
   );
@@ -337,7 +337,7 @@ async function fetchSinglePostFromPreviewDID(rkey) {
  * @returns {Promise<HTMLDivElement>}
  */
 async function displayLog(record) {
-  if (record["$type"] !== "space.bunniesin.micro.log")
+  if (record["$type"] !== "space.bunniesin.log.entry")
     throw new Error(`Invalid record type ${record["$type"]}`);
   console.info("[APP]", "Rendering log", record.rkey);
 

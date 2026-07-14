@@ -10,7 +10,7 @@
       pkgs = import nixpkgs { inherit system; };
     in {
     devShells.${system}.default = pkgs.mkShell {
-      buildInputs = with pkgs; [corepack nodejs-slim python3 typescript-language-server];
+      buildInputs = with pkgs; [corepack nodejs-slim python3 typescript-language-server atproto-goat];
     };
   };
 }

@@ -5,12 +5,16 @@ import {
   now,
   makeXRPC,
   toGraphemeSegments,
+  showMigrationDialog,
   ALLOWED_DIDS,
+  fetchAndDisplayLatestLogs, closeMigrationDialog
 } from "#app";
 import { navigate } from "#app/router";
+import { shouldMigrate, migrateRecordsToNewLexicon } from "#app/migrations";
+
 
 const OAUTH_SCOPES =
-  "atproto repo:app.bsky.feed.post?action=create repo:space.bunniesin.log.entry?action=create";
+  "atproto repo:app.bsky.feed.post?action=create repo:space.bunniesin.micro.log?action=delete repo:space.bunniesin.log.entry?action=create";
 const ROOT = document.querySelector("main[data-currentpage]");
 
 function clientID() {
@@ -30,7 +34,7 @@ function clientID() {
 const CLIENT_ID = clientID();
 
 let oauthClient;
-let agent;
+export let agent;
 
 async function beforeLogin(identifier) {
   console.debug(
@@ -92,6 +96,9 @@ async function setupOAuth() {
 
     console.info("[OAUTH]", "Agent initialized");
     ROOT.setAttribute("data-state", "authorized");
+    if (await shouldMigrate(agent.did)) {
+      showMigrationDialog()
+    }
   } catch (error) {
     displayError("oauth", error);
   }
@@ -239,6 +246,17 @@ async function createLog(content, form) {
 
     // reset form
     form.querySelector("#log-content").value = "";
+  }
+}
+
+export async function startMigration() {
+  try {
+    await migrateRecordsToNewLexicon(agent.did);
+    console.info("[MIGRATION]", "Migration done, closing dialog and fetching entries.")
+    await fetchAndDisplayLatestLogs();
+    closeMigrationDialog();
+  } catch (err) {
+    displayError("migration", err);
   }
 }
 

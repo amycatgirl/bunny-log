@@ -1,6 +1,6 @@
 {
   "lexicon": 1,
-  "id": "space.bunniesin.micro.log",
+  "id": "space.bunniesin.log.entry",
   "defs": {
     "main": {
       "key": "tid",
@@ -12,7 +12,7 @@
         "properties": {
           "content": {
             "type": "string",
-            "description": "The primary log content"
+            "description": "Primary content of a log's entry"
           },
           "createdAt": {
             "type": "string",

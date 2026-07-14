@@ -1,5 +1,6 @@
 import { defineNavigationHook, navigate } from "#app/router";
 import { getBacklinksCount } from "#app/microcosm";
+import { startMigration } from "#app/oauth";
 
 /** sloppy regex for matching atproto uri, they aren't compliant with rfc-3986 */
 const RE_ATURI =
@@ -111,7 +112,9 @@ export const now = () => {
 const TYPEAHEAD_PROVIDER = "https://typeahead.waow.tech";
 const DEFAULT_PREVIEW_HANDLE = "bunniesin.space";
 const DEFAULT_PREVIEW_DID = "did:plc:gijpvbkdbr56kazbdjhfvb3d";
+// const DEFAULT_PREVIEW_DID = "did:plc:5xgmly2j6ak2v2edj75pszeg";
 const DEFAULT_PREVIEW_DID_PDS = "https://eurosky.social";
+// const DEFAULT_PREVIEW_DID_PDS = "https://jellybaby.us-east.host.bsky.network";
 export const ALLOWED_DIDS = [
   "did:plc:gijpvbkdbr56kazbdjhfvb3d",
   "did:plc:5xgmly2j6ak2v2edj75pszeg",
@@ -161,6 +164,8 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
   timeStyle: "long",
   dateStyle: "short",
 });
+/** @type {HTMLDialogElement} */
+const MIGRATION_PROMPT = document.getElementById("migration-prompt")
 
 /**
  * utf16 -> utf8 segments -> utf16 segments for processing in native js
@@ -255,7 +260,7 @@ function toggleLoading() {
  * @param {string} uri
  * @returns {{identity: string, collection: string, rkey: string}}
  */
-function getATURIParts(uri) {
+export function getATURIParts(uri) {
   const match = RE_ATURI.exec(uri);
   return {
     ...(match.groups ?? { identity: null, collection: null, rkey: null }),
@@ -284,7 +289,7 @@ async function fetchPostsFromPreviewDID(next_cursor) {
   const res = await fetch(
     makeXRPC("com.atproto.repo.listRecords", {
       repo: DEFAULT_PREVIEW_DID,
-      collection: "space.bunniesin.micro.log",
+      collection: "space.bunniesin.log.entry",
       cursor: next_cursor,
     }),
   );
@@ -337,7 +342,7 @@ async function fetchSinglePostFromPreviewDID(rkey) {
  * @returns {Promise<HTMLDivElement>}
  */
 async function displayLog(record) {
-  if (record["$type"] !== "space.bunniesin.micro.log")
+  if (record["$type"] !== "space.bunniesin.log.entry")
     throw new Error(`Invalid record type ${record["$type"]}`);
   console.info("[APP]", "Rendering log", record.rkey);
 
@@ -409,6 +414,9 @@ export function displayError(context, message) {
       break;
     case "fetchPreviewList":
       errorKind = "Error while fetching latest logs:";
+      break;
+    case "migration":
+      errorKind = "Migration was interrupted by an error:";
       break;
     default:
       errorKind = "Unknown error:";
@@ -515,10 +523,33 @@ async function setupTypeaheadElements() {
   }
 }
 
+export function showMigrationDialog() {
+  MIGRATION_PROMPT.showModal()
+}
+
+export function disableButtonsWhileMigrating() {
+  for (const btn of MIGRATION_PROMPT.querySelectorAll("button")) {
+    btn.disabled = true;
+    btn.ariaBusy = "true";
+  }
+
+  MIGRATION_PROMPT.querySelector("button[type=submit]").innerText("Migrating, please wait...")
+}
+
+export function closeMigrationDialog() {
+  MIGRATION_PROMPT.close();
+}
+
 defineNavigationHook("log-preview", () => {
   previous_cursor = null;
   fetchAndDisplayLatestLogs();
 });
+
+MIGRATION_PROMPT.querySelector("button[type=submit]").addEventListener("click", (ev) => {
+  ev.preventDefault();
+  disableButtonsWhileMigrating();
+  startMigration();
+})
 
 document.addEventListener("DOMContentLoaded", () => {
   if (window.location.search) {

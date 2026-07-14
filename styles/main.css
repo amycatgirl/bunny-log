@@ -348,3 +348,7 @@ button:disabled {
 .h-center {
     justify-content: center;
 }
+
+dialog {
+    z-index: 5;
+}

@@ -20,7 +20,9 @@
                     "@atproto/api": "https://esm.sh/@atproto/api@0.16.4",
                     "#app": "./app.js",
                     "#app/microcosm": "./microcosm.js",
-                    "#app/router": "./router.js"
+                    "#app/router": "./router.js",
+                    "#app/oauth": "./oauth.js",
+                    "#app/migrations": "./migration.js"
                 }
             }
         </script>
@@ -84,6 +86,15 @@
                     </ul>
                 </nav>
             </header>
+            <dialog id="migration-prompt">
+                <h2>Migration required</h2>
+                <p>We have moved the bunny log lexicons to a new namespace, causing old entries to be invalid.</p>
+                <p>We ask you to migrate your entries to this new lexicon.</p>
+                <div>
+                    <button type="submit">Ok</button>
+                    <button class="danger">Cancel and log out</button>
+                </div>
+            </dialog>
             <section class="without-session page" id="login">
                 <h2>log in</h2>
                 <form id="login-form">

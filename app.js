@@ -533,7 +533,7 @@ export function disableButtonsWhileMigrating() {
     btn.ariaBusy = "true";
   }
 
-  MIGRATION_PROMPT.querySelector("button[type=submit]").innerText("Migrating, please wait...")
+  MIGRATION_PROMPT.querySelector("button[type=submit]").innerText = "Migrating, please wait...";
 }
 
 export function closeMigrationDialog() {

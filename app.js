@@ -1,6 +1,7 @@
 import { defineNavigationHook, navigate } from "#app/router";
 import { getBacklinksCount } from "#app/microcosm";
 import { startMigration } from "#app/oauth";
+import { getText, getState, documentToFacets } from "#app/richtext";
 
 /** sloppy regex for matching atproto uri, they aren't compliant with rfc-3986 */
 const RE_ATURI =

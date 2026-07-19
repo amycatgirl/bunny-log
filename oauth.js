@@ -11,6 +11,7 @@ import {
 } from "#app";
 import { navigate } from "#app/router";
 import { shouldMigrate, migrateRecordsToNewLexicon } from "#app/migrations";
+import { documentToFacets, getState, getText } from "#app/richtext";
 
 
 const OAUTH_SCOPES =

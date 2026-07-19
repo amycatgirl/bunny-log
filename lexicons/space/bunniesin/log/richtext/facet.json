@@ -13,21 +13,10 @@
     },
     "colour": {
       "type": "object",
-      "description": "Facet feature for coloured text. Colours must not be hexadecimal values, only canonical colour names. Available colours may change over time.",
+      "description": "Facet feature for coloured text. Colours must be hexadecimal values, implementors should ensure the colours are accessible for the current theme.",
       "properties": {
         "colour": {
-          "type": "string",
-          "enum": [
-             "red",
-             "green",
-             "blue",
-             "pink",
-             "yellow",
-             "orange",
-             "purple",
-             "cyan",
-             "aqua"
-          ]
+          "type": "string"
         }
       }
     },
@@ -47,17 +36,10 @@
     },
     "highlight": {
       "type": "object",
-      "description": "Facet feature for a highlighted region of text.",
+      "description": "Facet feature for a highlighted region of text. Colours must be hexadecimal values, implementors should ensure the colours are accessible for the current theme.",
       "properties": {
         "colour": {
           "type": "string",
-          "enum": [
-            "yellow",
-            "green",
-            "pink",
-            "cyan"
-          ],
-          "default": "yellow"
         }
       }
     }

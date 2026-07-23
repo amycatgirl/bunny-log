@@ -24,6 +24,10 @@
       "type": "object",
       "description": "Facet feature for monospaced text, usually for displaying inline snippets of code."
     },
+    "strikethrough": {
+      "type": "object",
+      "description": "Facet feature for striked text."
+    },
     "link": {
       "type": "object",
       "description": "Facet feature for a URL.",

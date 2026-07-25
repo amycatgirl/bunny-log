@@ -1,0 +1,51 @@
+{
+  "lexicon": 1,
+  "id": "space.bunniesin.log.richtext.facet",
+  "description": "Rich text facets used to add flare to entries.",
+  "defs": {
+    "bold": {
+      "type": "object",
+      "description": "Facet feature for emphasised text."
+    },
+    "italic": {
+      "type": "object",
+      "description": "Facet feature for italicised text."
+    },
+    "colour": {
+      "type": "object",
+      "description": "Facet feature for coloured text. Colours must be hexadecimal values, implementors should ensure the colours are accessible for the current theme.",
+      "properties": {
+        "colour": {
+          "type": "string"
+        }
+      }
+    },
+    "code": {
+      "type": "object",
+      "description": "Facet feature for monospaced text, usually for displaying inline snippets of code."
+    },
+    "strikethrough": {
+      "type": "object",
+      "description": "Facet feature for striked text."
+    },
+    "link": {
+      "type": "object",
+      "description": "Facet feature for a URL.",
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "highlight": {
+      "type": "object",
+      "description": "Facet feature for a highlighted region of text. Colours must be hexadecimal values, implementors should ensure the colours are accessible for the current theme.",
+      "properties": {
+        "colour": {
+          "type": "string",
+        }
+      }
+    }
+  }
+}

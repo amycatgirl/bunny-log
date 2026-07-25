@@ -275,6 +275,11 @@ nav li:has(a.router-link) {
     & * { color: var(--c-emphasis-fg); }
 }
 
+button.active {
+    background-color: var(--c-emphasis) !important;
+    color: var(--c-emphasis-fg) !important;
+}
+
 :is(nav li:has(a.router-link), button) {
     &:is(button) {
         background-color: var(--c-bg--elevation-slight);

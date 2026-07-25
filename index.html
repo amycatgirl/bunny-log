@@ -11,24 +11,35 @@
         <meta name="referrer" content="origin-when-cross-origin" />
         <link rel="icon" type="image/svg+xml" href="favicon.svg" />
         <link rel="stylesheet" href="styles/main.css" />
-
-        <!-- Import map for debugging purposes -->
         <script type="importmap">
             {
                 "imports": {
                     "@atproto/oauth-client-browser": "https://esm.sh/@atproto/oauth-client-browser@0.3.29",
                     "@atproto/api": "https://esm.sh/@atproto/api@0.16.4",
+                    "@tiptap/core": "https://esm.sh/@tiptap/core@3.28.0",
+                    "@tiptap/extension-bold": "https://esm.sh/@tiptap/extension-bold@3.28.0",
+                    "@tiptap/extension-document": "https://esm.sh/@tiptap/extension-document@3.28.0",
+                    "@tiptap/extension-paragraph": "https://esm.sh/@tiptap/extension-paragraph@3.28.0",
+                    "@tiptap/extension-italic": "https://esm.sh/@tiptap/extension-italic@3.28.0",
+                    "@tiptap/extension-link": "https://esm.sh/@tiptap/extension-link@3.28.0",
+                    "@tiptap/extension-highlight": "https://esm.sh/@tiptap/extension-highlight@3.28.0",
+                    "@tiptap/extension-text": "https://esm.sh/@tiptap/extension-text@3.28.0",
+                    "@tiptap/extension-text-style": "https://esm.sh/@tiptap/extension-text-style@3.28.0",
+                    "@tiptap/extension-strike": "https://esm.sh/@tiptap/extension-strike@3.28.0",
+                    "@tiptap/extensions": "https://esm.sh/@tiptap/extensions@3.28.0",
                     "#app": "./app.js",
                     "#app/microcosm": "./microcosm.js",
                     "#app/router": "./router.js",
                     "#app/oauth": "./oauth.js",
-                    "#app/migrations": "./migration.js"
+                    "#app/migrations": "./migration.js",
+                    "#app/richtext": "./richtext.js"
                 }
             }
         </script>
         <script type="module" defer src="router.js"></script>
         <script type="module" defer src="oauth.js"></script>
         <script type="module" defer src="app.js"></script>
+        <script type="module" defer src="richtext.js"></script>
     </head>
     <body>
         <main
@@ -88,7 +99,10 @@
             </header>
             <dialog id="migration-prompt">
                 <h2>Migration required</h2>
-                <p>We have moved the bunny log lexicons to a new namespace, causing old entries to be invalid.</p>
+                <p>
+                    We have moved the bunny log lexicons to a new namespace,
+                    causing old entries to be invalid.
+                </p>
                 <p>We ask you to migrate your entries to this new lexicon.</p>
                 <div>
                     <button type="submit">Ok</button>
@@ -117,7 +131,37 @@
             <section class="with-session page" id="log-new">
                 <h2>new log</h2>
                 <form id="log-form">
-                    <textarea id="log-content"></textarea>
+                    <div class="rt">
+                        <div class="toolbar">
+                            <button id="rt-tb-bold">bold</button>
+                            <button id="rt-tb-italic">italic</button>
+                            <button id="rt-tb-striked">striked</button>
+                            <button id="rt-tb-link">link</button>
+                            <div class="expander" id="rt-tbx-link">
+                                <div id="rt-link">
+                                    <input id="rt-link-url" type="url" />
+                                    <button type="submit" id="rt-link-confirm">confirm</button>
+                                </div>
+                            </div>
+                            <button id="rt-tb-colour">colour</button>
+                            <div class="expander" id="rt-tbx-colour">
+                                <div id="rt-colour">
+                                    <input id="rt-colour-hex" type="url" />
+                                    <button id="rt-colour-clear">Clear</button>
+                                    <button type="submit" id="rt-colour-confirm">confirm</button>
+                                </div>
+                            </div>
+                            <button id="rt-tb-hl">hl</button>
+                            <div class="expander" id="rt-tbx-hl">
+                                <div id="rt-hl">
+                                    <input id="rt-hl-hex" type="url" />
+                                    <button id="rt-hl-clear">Clear</button>
+                                    <button type="submit" id="rt-hl-confirm">confirm</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="rt-tiptap"></div>
+                    </div>
                     <div>
                         <input type="checkbox" id="do-crosspost" checked />
                         <label for="do-crosspost">crosspost to bluesky?</label>
@@ -125,6 +169,7 @@
                     <button type="submit">
                         subject netizens to your bullshit
                     </button>
+                </form>
                 </form>
             </section>
             <section class="page" id="log-preview">
@@ -135,7 +180,10 @@
                     <div class="pager">
                         <!-- pages go here, how do we calculate how many are left from cursor n without an appview? -->
                     </div>
-                    <div id="postlist--pagination-marker" style="height: 3px;"></div>
+                    <div
+                        id="postlist--pagination-marker"
+                        style="height: 3px"
+                    ></div>
                 </div>
             </section>
             <section class="page" id="log-unauthorized">
@@ -173,7 +221,8 @@
     </body>
 
     <style>
-        main[data-currentpage="log-preview"] section.page:not([id="log-preview"]) {
+        main[data-currentpage="log-preview"]
+            section.page:not([id="log-preview"]) {
             display: none;
         }
 
@@ -185,11 +234,13 @@
             display: none;
         }
 
-        main[data-currentpage="log-unauthorized"] section.page:not([id="log-unauthorized"]) {
+        main[data-currentpage="log-unauthorized"]
+            section.page:not([id="log-unauthorized"]) {
             display: none;
         }
 
-        main[data-currentpage="log-permalink"] section.page:not([id="log-permalink"]) {
+        main[data-currentpage="log-permalink"]
+            section.page:not([id="log-permalink"]) {
             display: none;
         }
 
@@ -207,6 +258,26 @@
 
         .hidden {
             display: none;
+        }
+
+        .rt > .toolbar {
+            display: inline-flex;
+
+            *:not(.expander, :first-child) {
+                margin-left: 2px;
+            }
+
+            & .expander {
+                display: flex;
+                width: 0px;
+                transition: width 0.2s ease-in-out;
+                overflow: clip;
+
+                &.active {
+                    width: fit-content;
+                    margin-left: 2px;
+                }
+            }
         }
     </style>
 </html>

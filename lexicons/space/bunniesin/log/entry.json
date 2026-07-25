@@ -14,6 +14,14 @@
             "type": "string",
             "description": "Primary content of a log's entry"
           },
+          "facets": {
+            "type": "array",
+            "items": {
+              "ref": "space.bunniesin.log.richtext.facet",
+              "type": "ref",
+            },
+            "description": "Annotations of text, see space.bunniesin.log.richtext.facet for available features.",
+          },
           "createdAt": {
             "type": "string",
             "format": "datetime",

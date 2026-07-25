@@ -11,14 +11,14 @@ import { Color, TextStyle } from "@tiptap/extension-text-style";
 import { Editor } from "@tiptap/core";
 
 const TIPTAP = document.getElementById("rt-tiptap");
-const RT_TOOLBAR = document.querySelector(".rt > .toolbar");
+const RT_TOOLBAR = document.querySelector(".rt .toolbar");
 
 /** @type {HTMLButtonElement[]} */
 const RT_TOOLBAR_BUTTONS = [...RT_TOOLBAR.querySelectorAll("button[id^=rt-tb]")];
 
-const RT_TOOLBAR_FORM_LINK = RT_TOOLBAR.querySelector("form#rt-link");
-const RT_TOOLBAR_FORM_COLOUR = RT_TOOLBAR.querySelector("form#rt-colour");
-const RT_TOOLBAR_FORM_HL = RT_TOOLBAR.querySelector("form#rt-hl");
+const RT_TOOLBAR_FORM_LINK = RT_TOOLBAR.querySelector("div#rt-link");
+const RT_TOOLBAR_FORM_COLOUR = RT_TOOLBAR.querySelector("div#rt-colour");
+const RT_TOOLBAR_FORM_HL = RT_TOOLBAR.querySelector("div#rt-hl");
 
 const ENCODER = new TextEncoder()
 
@@ -151,7 +151,7 @@ export function documentToFacets(doc, raw) {
 
   for (const mark of marks) {
     const range = [mark[0].from, mark[0].to];
-    facets.push({
+    const facet = {
       index: {
         byteStart: stringIndexToUtf8Index(raw, range[0]) + 1,
         byteEnd: stringIndexToUtf8Index(raw, range[1]) - 1
@@ -167,8 +167,12 @@ export function documentToFacets(doc, raw) {
           ...((type === "colour" || type === "highlight") ? { colour: v.attrs.color } : {})
         }
       })]
-    })
+    };
+    console.debug("[RT] Made facet:", facet)
+    facets.push(facet)
   }
+
+  console.debug("[RT]", facets)
 
   return facets
 }
@@ -198,7 +202,7 @@ function toggleExpander(kind) {
   document.querySelector(`.rt .toolbar .expander#rt-tbx-${kind}`).classList.toggle("active");
 }
 
-RT_TOOLBAR_FORM_LINK.addEventListener("submit", (ev) => {
+RT_TOOLBAR_FORM_LINK.querySelector("button[type=submit]").addEventListener("click", (ev) => {
   ev.preventDefault();
 
   const input = RT_TOOLBAR_FORM_LINK.querySelector("#rt-link-url")
@@ -206,7 +210,7 @@ RT_TOOLBAR_FORM_LINK.addEventListener("submit", (ev) => {
   toggleExpander("link")
 })
 
-RT_TOOLBAR_FORM_COLOUR.addEventListener("submit", (ev) => {
+RT_TOOLBAR_FORM_COLOUR.querySelector("button[type=submit]").addEventListener("click", (ev) => {
   ev.preventDefault();
 
   const input = RT_TOOLBAR_FORM_COLOUR.querySelector("#rt-colour-hex")
@@ -220,7 +224,7 @@ RT_TOOLBAR_FORM_COLOUR.querySelector("#rt-colour-clear").addEventListener("click
   toggleExpander("colour")
 })
 
-RT_TOOLBAR_FORM_HL.addEventListener("submit", (ev) => {
+RT_TOOLBAR_FORM_HL.querySelector("button[type=submit]").addEventListener("click", (ev) => {
   ev.preventDefault();
 
   const input = RT_TOOLBAR_FORM_HL.querySelector("#rt-hl-hex")
@@ -274,4 +278,8 @@ for (const button of RT_TOOLBAR_BUTTONS) {
         break;
     }
   })
+}
+
+export function clearEditor() {
+  editor.commands.clearContent();
 }

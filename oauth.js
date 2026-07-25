@@ -11,7 +11,7 @@ import {
 } from "#app";
 import { navigate } from "#app/router";
 import { shouldMigrate, migrateRecordsToNewLexicon } from "#app/migrations";
-import { documentToFacets, getState, getText } from "#app/richtext";
+import { documentToFacets, getState, getText, clearEditor } from "#app/richtext";
 
 
 const OAUTH_SCOPES =
@@ -192,7 +192,7 @@ async function createCrosspostedLog(tid, content) {
   }
 }
 
-async function crosspost(content, tid) {
+async function crosspost(content, facets, tid) {
   const crosspost = await createCrosspostedLog(tid, content);
   if (!crosspost.success) throw new Error(crosspost);
 
@@ -203,6 +203,7 @@ async function crosspost(content, tid) {
     record: {
       $type: "space.bunniesin.log.entry",
       content: content,
+      facets,
       createdAt: new Date().toISOString(),
       blueskyPost: {
         uri: crosspost.data.uri,
@@ -212,7 +213,7 @@ async function crosspost(content, tid) {
   });
 }
 
-async function createLog(content, form) {
+async function createLog(content, facets, form) {
   form.querySelectorAll("button, input[type=checkbox]").forEach((input) => {
     input.setAttribute("aria-busy", "true");
     input.setAttribute("disabled", true);
@@ -221,7 +222,7 @@ async function createLog(content, form) {
 
   try {
     if (form.querySelector("#do-crosspost").checked) {
-      await crosspost(content, tid);
+      await crosspost(content, facets, tid);
     } else {
       await agent.com.atproto.repo.createRecord({
         repo: agent.did,
@@ -230,6 +231,7 @@ async function createLog(content, form) {
         record: {
           $type: "space.bunniesin.log.entry",
           content: content,
+          facets,
           createdAt: new Date().toISOString(),
         },
       });
@@ -246,7 +248,7 @@ async function createLog(content, form) {
     });
 
     // reset form
-    form.querySelector("#log-content").value = "";
+    clearEditor()
   }
 }
 
@@ -276,9 +278,9 @@ ROOT.addEventListener("broadcast", (ev) => {
 document.getElementById("log-form").addEventListener("submit", (ev) => {
   ev.preventDefault();
   const form = ROOT.querySelector("form#log-form");
-  const content = form.querySelector("textarea#log-content").value;
+  const content = getText();
 
-  createLog(content, form);
+  createLog(content, documentToFacets(getState(), content), form);
 });
 
 document.getElementById("login-form").addEventListener("submit", (ev) => {

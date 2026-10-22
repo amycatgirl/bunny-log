@@ -9,12 +9,12 @@ yes, but
 ## but what
 but not from my website
 
-you will have to fork the project, edit `app.js`, and host it by yourself
+you will have to fork the project, edit `src/app.js`, and host it by yourself
 
 ## why
 bc the app is intended for my use only
 
-you can use it, sure, whatever, literally edit the `app.js` to allow your account's DID
+you can use it, sure, whatever, literally edit the `src/app.js` to allow your account's DID
 
 but
 
@@ -45,10 +45,22 @@ like [this](https://log.bunniesin.space)
 
 ## developing
 
-run a developer server by using the provided python script:
+install the dependencies:
 ```bash
-# "-r" makes a rewrite rule (url:path), we want to serve the development metadata, not the production one.
-python3 ./server.py -r oauth-client-metadata.json:./oauth-client-metadata.dev.json
+pnpm install
+```
+
+run the development server:
+```bash
+pnpm dev
+```
+
+the development server handles the OAuth metadata rewrite automatically
+(`/oauth-client-metadata.json` is served from `oauth-client-metadata.dev.json`).
+
+build the production site into `dist`:
+```bash
+pnpm build
 ```
 
 we love basic ass web apps 💖🐇

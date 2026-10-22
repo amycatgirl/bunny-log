@@ -1,4 +1,2 @@
-oauth_reference.js
-stndrdsite_renderer.js
-.idea
-package.json
+node_modules/
+dist/

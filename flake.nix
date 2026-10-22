@@ -1,16 +1,43 @@
 {
-  description = "A very basic flake";
+  description = "Bunny Log development shell";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "https://channels.nixos.org/nixpkgs-unstable/nixexprs.tar.zst";
   };
 
-  outputs = { self, nixpkgs }: let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; };
-    in {
-    devShells.${system}.default = pkgs.mkShell {
-      buildInputs = with pkgs; [corepack nodejs-slim python3 typescript-language-server atproto-goat];
+  outputs =
+    { self, nixpkgs }:
+    let
+      supportedSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+      forAllSystems =
+        f:
+        nixpkgs.lib.genAttrs supportedSystems (system: f (builtins.getAttr system nixpkgs.legacyPackages));
+    in
+    {
+      devShells = forAllSystems (
+        {
+          mkShell,
+          pnpm,
+          python3,
+          typescript-language-server,
+          atproto-goat,
+          biome,
+          ...
+        }:
+        {
+          default = mkShell {
+            buildInputs = [
+              pnpm
+              python3
+              typescript-language-server
+              atproto-goat
+              biome
+            ];
+          };
+        }
+      );
     };
-  };
 }

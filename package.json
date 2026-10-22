@@ -1,0 +1,40 @@
+{
+  "name": "bunnylog",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "rspack serve --mode development",
+    "build": "rspack build --mode production",
+    "preview": "rspack preview"
+  },
+  "imports": {
+    "#app": "./src/app.js",
+    "#app/router": "./src/router.js",
+    "#app/oauth": "./src/oauth.js",
+    "#app/microcosm": "./src/microcosm.js",
+    "#app/migrations": "./src/migration.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.9.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@12.9.0",
+  "type": "module",
+  "devDependencies": {
+    "@rspack/cli": "^2.2.9",
+    "@rspack/core": "^2.2.9",
+    "@rspack/dev-server": "^2.2.1"
+  },
+  "dependencies": {
+    "@atproto/api": "^0.29.0",
+    "@atproto/oauth-client-browser": "^0.5.10",
+    "core-js": "^3.51.0"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "lexicon": 1,
+  "id": "space.bunniesin.log.richtext.facet",
+  "description": "Rich text facets used to add flare to entries.",
+  "defs": {
+    "bold": {
+      "type": "object",
+      "description": "Facet feature for emphasised text."
+    },
+    "italic": {
+      "type": "object",
+      "description": "Facet feature for italicised text."
+    },
+    "code": {
+      "type": "object",
+      "description": "Facet feature for monospaced text, usually for displaying inline snippets of code."
+    },
+    "strikethrough": {
+      "type": "object",
+      "description": "Facet feature for striked text."
+    },
+    "link": {
+      "type": "object",
+      "description": "Facet feature for a URL.",
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    }
+  }
+}
